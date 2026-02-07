@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blox Fruits HTML</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/main.css">
+    <!-- Load Three.js -->
+    <!-- Three.js loaded via globals.js -->
+</head>
+
+<body>
+    <div id="game-container"></div>
+    <div id="debug-console"
+        style="display:none; position:fixed; top:0; left:0; width:300px; height:200px; background:rgba(0,0,0,0.5); color:lime; overflow:auto; z-index:9999; font-family:monospace; font-size:12px; pointer-events:none;">
+        Debug Log...<br></div>
+
+    <!-- Player List / Leaderboard (Top Right) -->
+    <div id="player-list"
+        style="position: fixed; top: 10px; right: 10px; width: 200px; background: rgba(0,0,0,0.5); color: white; padding: 5px; font-family: sans-serif; font-size: 14px; pointer-events: none; z-index: 900; border-radius: 5px;">
+        <div style="font-weight: bold; border-bottom: 1px solid #aaa; margin-bottom: 5px;">PLAYERS</div>
+        <div id="player-list-content">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Chat UI -->
+    <div id="chat-container"
+        style="position: fixed; bottom: 20px; left: 20px; width: 300px; height: 200px; pointer-events: none; z-index: 1000; display: flex; flex-direction: column;">
+        <div id="chat-messages"
+            style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.5); color: white; padding: 5px; font-family: monospace; font-size: 14px; pointer-events: auto;">
+            <!-- Messages go here -->
+        </div>
+        <input type="text" id="chat-input" placeholder="Press Enter to Chat..."
+            style="background: rgba(0,0,0,0.7); color: white; border: 1px solid #444; padding: 5px; pointer-events: auto;">
+    </div>
+
+    <!-- UI Overlay -->
+    <div id="ui-layer">
+
+        <!-- Login Screen -->
+        <!-- Login Screen -->
+        <div id="login-screen" class="active">
+            <div class="login-wrapper">
+                <div class="logo-section">
+                    <h1 class="glitch-text" data-text="BLOX FRUITS">BLOX FRUITS</h1>
+                    <p class="subtitle">MAXIMUM EDITION</p>
+                </div>
+
+                <div class="auth-container glass-panel-premium">
+                    <div class="auth-tabs">
+                        <button id="tab-login" class="auth-tab active" onclick="switchAuth('login')">LOGIN</button>
+                        <button id="tab-register" class="auth-tab" onclick="switchAuth('register')">REGISTER</button>
+                    </div>
+
+                    <div class="auth-content">
+                        <div class="input-group">
+                            <i class="icon-user"></i>
+                            <input type="text" id="username-input" placeholder="Username" maxlength="20">
+                        </div>
+                        <div class="input-group">
+                            <i class="icon-lock"></i>
+                            <input type="password" id="password-input" placeholder="Password" maxlength="50">
+                        </div>
+
+                        <button id="auth-btn" class="neon-btn primary" onclick="handleAuth()">
+                            LOGIN TO PLAY
+                        </button>
+
+                        <div class="auth-divider">
+                            <span>OR</span>
+                        </div>
+
+                        <button class="neon-btn secondary guest-btn" onclick="handleGuestAuth()">
+                            PLAY AS GUEST
+                        </button>
+                    </div>
+
+                    <div id="loading-spinner" class="spinner hidden"></div>
+                    <p id="auth-msg" class="status-msg"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard (Lobby Selection) -->
+        <div id="dashboard-screen" class="hidden">
+            <div class="glass-panel dashboard-panel">
+                <h2>Welcome, <span id="dash-username">Player</span></h2>
+
+                <div class="dashboard-actions">
+                    <div class="action-card" onclick="createLobby()">
+                        <h3>Create Lobby</h3>
+                        <p>Host a private game</p>
+                    </div>
+                    <div class="action-card" onclick="showJoinLobby()">
+                        <h3>Join Lobby</h3>
+                        <p>Enter a Lobby ID</p>
+                    </div>
+                </div>
+
+                <h3>Public Servers</h3>
+                <div class="server-list">
+                    <div class="server-item" onclick="joinLobby('public_1')">Public Server 1</div>
+                    <div class="server-item" onclick="joinLobby('public_2')">Public Server 2</div>
+                    <div class="server-item" onclick="joinLobby('public_3')">Public Server 3</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Join Lobby Modal -->
+        <div id="join-modal" class="hidden modal-overlay">
+            <div class="glass-panel modal-panel">
+                <h3>Enter Lobby ID</h3>
+                <input type="text" id="lobby-id-input" placeholder="Room ID">
+                <div class="modal-buttons">
+                    <button onclick="confirmJoinLobby()">Join</button>
+                    <button onclick="closeModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Intro / Team Selection -->
+        <div id="team-selection" class="hidden">
+            <div class="logo-container">
+                <h1>BLOX FRUITS</h1>
+                <p class="subtitle">HTML EDITION</p>
+            </div>
+
+            <div class="teams">
+                <div class="team-card marine" onclick="selectTeam('marine')">
+                    <h2>MARINES</h2>
+                    <p>Order & Justice</p>
+                </div>
+                <div class="team-card pirate" onclick="selectTeam('pirate')">
+                    <h2>PIRATES</h2>
+                    <p>Freedom & Adventure</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gameplay HUD (Hidden initially) -->
+        <div id="game-hud" class="hidden">
+            <div id="event-banner" class="hidden">Event: None</div>
+            <div class="player-stats">
+                <div class="stat-bar health">
+                    <div class="bar-fill" id="hp-bar" style="width: 100%;"></div>
+                    <span class="stat-text" id="hp-text">Health 100/100</span>
+                </div>
+                <div class="stat-bar energy">
+                    <div class="bar-fill" id="energy-bar" style="width: 100%;"></div>
+                    <span class="stat-text" id="energy-text">Energy 100/100</span>
+                </div>
+                <div class="stat-bar oxygen">
+                    <div id="oxygen-bar-fill" class="bar-fill" style="width: 100%; background: #00ffff;"></div>
+                    <span class="stat-text">Oxygen</span>
+                </div>
+            </div>
+
+            <!-- Money Display -->
+            <div id="money-display" class="money-hud">
+                $ 0
+            </div>
+
+            <div class="skills-container">
+                <div class="skill-slot">Z</div>
+                <div class="skill-slot">X</div>
+                <div class="skill-slot">C</div>
+                <div class="skill-slot">V</div>
+                <div class="skill-slot">F</div>
+            </div>
+
+            <!-- Hotbar (Inventory) -->
+            <div id="hotbar-container" class="hotbar">
+                <!-- Slots generated by JS -->
+            </div>
+
+            <div class="level-display">
+                <span class="level-text">Lv. 1</span>
+                <div class="exp-bar">
+                    <div class="exp-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop UI (Hidden) -->
+        <div id="shop-ui" class="hidden">
+            <div class="glass-panel shop-panel">
+                <h2>WEAPON SHOP</h2>
+                <button class="close-btn" onclick="closeShop()">X</button>
+
+                <div class="shop-grid">
+                    <div class="shop-item" onclick="buyItem('katana')">
+                        <h3>Katana</h3>
+                        <p>$1000</p>
+                    </div>
+                    <div class="shop-item" onclick="buyItem('cutlass')">
+                        <h3>Cutlass</h3>
+                        <p>$2500</p>
+                    </div>
+                    <div class="shop-item" onclick="buyItem('pipe')">
+                        <h3>Pipe</h3>
+                        <p>$5000</p>
+                    </div>
+                    <div class="shop-item" onclick="buyItem('bazooka')">
+                        <h3>Bazooka</h3>
+                        <p>$10000</p>
+                    </div>
+                    <div class="shop-item" onclick="buyFruit()">
+                        <h3>Random Fruit</h3>
+                        <p>$1000</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    </div>
+
+    <!-- Quest HUD -->
+    <div id="quest-hud" class="quest-hud hidden">
+        <h3 id="quest-title">Defeat Gorillas</h3>
+        <p id="quest-progress">0/5 Defeated</p>
+        <div class="quest-rewards">
+            <span>$200</span> | <span>500 XP</span>
+        </div>
+    </div>
+
+    <!-- Dialog UI (NPC Interaction) -->
+    <div id="dialog-ui" class="hidden">
+        <div class="glass-panel dialog-panel">
+            <h3 id="npc-name">Quest Giver</h3>
+            <p id="npc-text">Do you want to defeat some Gorillas for me?</p>
+            <div class="dialog-options">
+                <button onclick="acceptQuest()">Accept</button>
+                <button onclick="closeDialog()">Decline</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel (Hidden) -->
+    <div id="admin-panel" class="hidden">
+        <div class="glass-panel admin-panel" style="width: 400px; position: fixed; top: 50px; right: 50px;">
+            <h3>ADMIN CONTROL</h3>
+            <button class="close-btn" onclick="toggleAdminPanel()">X</button>
+
+            <div class="admin-controls">
+                <input type="text" id="admin-target" placeholder="Target Player ID"
+                    style="width: 100%; margin-bottom: 10px; color: black;">
+
+                <h4>Actions</h4>
+                <div class="action-row">
+                    <button onclick="adminAction('kick')">KICK</button>
+                    <button onclick="adminAction('teleport')">TP TO</button>
+                </div>
+
+                <h4>Grant Item</h4>
+                <div class="action-row">
+                    <input type="text" id="admin-item" placeholder="Item Name (e.g. Dragon Fruit)"
+                        style="width: 60%; color: black;">
+                    <button onclick="adminAction('grant_item')">GRANT</button>
+                </div>
+
+                <div id="owner-controls" class="hidden">
+                    <h4>Owner Zone</h4>
+                    <div class="action-row">
+                        <button onclick="adminAction('make_admin')" style="background: gold; color: black;">MAKE
+                            ADMIN</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Toggle Button (Hidden) -->
+    <button id="admin-toggle-btn" class="hidden" onclick="toggleAdminPanel()"
+        style="position: fixed; top: 10px; right: 10px; z-index: 10000; background: red; color: white; border: 2px solid white; padding: 5px 10px; cursor: pointer;">
+        ADMIN
+    </button>
+
+    </div>
+
+    <script type="module" src="js/script.js"></script>
+</body>
+
+</html>
