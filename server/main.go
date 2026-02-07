@@ -9,8 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"math/rand"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/websocket/v2"
@@ -862,27 +860,6 @@ func main() {
 		// We need to change `register` logic to NOT create new player if one exists in DB.
 		// So we pass the loaded user to the hub via a temp map? Or just reload in WS.
 		// Reloading in WS is safer.
-		hub.mutex.Unlock()
-
-		return c.JSON(fiber.Map{"token": token, "username": user.ID})
-	})
-
-	app.Post("/api/guest", func(c *fiber.Ctx) error {
-		rand.Seed(time.Now().UnixNano())
-		id := rand.Intn(90000) + 10000
-		username := fmt.Sprintf("Guest_%d", id)
-		password := "guest_pass"
-
-		RegisterUser(username, password) // Ignore error, likely new
-
-		user, err := AuthenticateUser(username, password)
-		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"error": "Guest login failed"})
-		}
-
-		token := generateID()
-		hub.mutex.Lock()
-		hub.tokens[token] = user.ID
 		hub.mutex.Unlock()
 
 		return c.JSON(fiber.Map{"token": token, "username": user.ID})

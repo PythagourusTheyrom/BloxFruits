@@ -733,19 +733,23 @@ export const SpeedR = {
     },
 
     SphereGeometry: class {
-        constructor(radius = 1, widthSegments = 16, heightSegments = 12) {
+        constructor(radius = 1, widthSegments = 16, heightSegments = 12, phiStart = 0, phiLength = Math.PI * 2, thetaStart = 0, thetaLength = Math.PI) {
             this.type = "Sphere";
+            this.parameters = { radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength };
+
             const positions = [];
             const normals = [];
             const uvs = [];
 
             for (let y = 0; y <= heightSegments; y++) {
                 const v = y / heightSegments;
-                const theta = v * Math.PI;
+                // thetaStart + v * thetaLength
+                const theta = thetaStart + v * thetaLength;
 
                 for (let x = 0; x <= widthSegments; x++) {
                     const u = x / widthSegments;
-                    const phi = u * Math.PI * 2;
+                    // phiStart + u * phiLength
+                    const phi = phiStart + u * phiLength;
 
                     const px = - radius * Math.sin(theta) * Math.cos(phi);
                     const py = radius * Math.cos(theta);
@@ -758,9 +762,7 @@ export const SpeedR = {
                 }
             }
 
-            const indices = []; // We are doing triangle strip expansion manually to triangles for now
-            // Actually, let's just push triangles directly into expanded arrays to match existing engine style (no index buffer support yet)
-
+            // Indices / Expansion
             const expPos = [];
             const expNorm = [];
             const expUv = [];
@@ -771,9 +773,6 @@ export const SpeedR = {
                     const i2 = i1 + 1;
                     const i3 = i1 + (widthSegments + 1);
                     const i4 = i3 + 1;
-
-                    // Triangle 1: i1, i2, i3
-                    // Triangle 2: i2, i4, i3
 
                     const pushVert = (idx) => {
                         expPos.push(positions[idx * 3], positions[idx * 3 + 1], positions[idx * 3 + 2]);

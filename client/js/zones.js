@@ -57,9 +57,9 @@ addZone(name, x, z, radius, color = '#ffffff', safe = false) {
 
         // Optional: Dome?
         // Transparent Sphere
-        const domeGeo = new THREE.SphereGeometry(radius, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-        const domeMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true, transparent: true, opacity: 0.1 });
-        const dome = new THREE.Mesh(domeGeo, domeMat);
+        const domeGeo = new SpeedR.SphereGeometry(radius, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+        const domeMat = new SpeedR.MeshBasicMaterial({ color: 0x00ff00, wireframe: true, transparent: true, opacity: 0.1 });
+        const dome = new SpeedR.Mesh(domeGeo, domeMat);
         dome.position.set(x, 0, z);
         this.scene.add(dome);
     }
