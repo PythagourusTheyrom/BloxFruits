@@ -434,7 +434,7 @@ function init(token, roomID) {
         characterController = new CharacterController(myPlayerMesh, renderer.domElement, physics);
 
         // Camera Control Init
-        cameraControl = new CameraControl(camera, myPlayerMesh, renderer.domElement);
+        cameraControl = new CameraCtrl(camera, myPlayerMesh, renderer.domElement);
 
         const weatherSystem = new WeatherSystem(scene, myPlayerMesh);
         const ghostEffect = new GhostEffect(scene);
