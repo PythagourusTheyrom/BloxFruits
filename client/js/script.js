@@ -1174,34 +1174,38 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-function updateUI() {
-    // Update Money
-    const moneyEl = document.getElementById('money-display'); // Need to add this ID to HTML
+function updateSecondaryUI() {
+    // Update Money (Redundant but safe)
+    const moneyEl = document.getElementById('money-display');
     if (moneyEl) moneyEl.innerText = "$ " + (gameState.player.money || 0);
 
-    // Update Hotbar (Simple list for now)
-    const hotbar = document.getElementById('hotbar-container'); // Need to add to HTML
+    // Update Hotbar
+    const hotbar = document.getElementById('hotbar-container');
     if (hotbar) {
-        hotbar.innerHTML = ''; // Clear
+        hotbar.innerHTML = '';
         (gameState.player.inventory || []).forEach(item => {
             const slot = document.createElement('div');
             slot.className = 'hotbar-slot';
-            slot.innerText = item.charAt(0).toUpperCase(); // First letter icon
+            slot.innerText = item.charAt(0).toUpperCase();
             slot.title = item;
             slot.onclick = () => {
-                // Equip Request
-                socket.send(JSON.stringify({ type: 'set_weapon', weapon: item }));
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({ type: 'set_weapon', weapon: item }));
+                }
             };
             hotbar.appendChild(slot);
         });
     }
+}
 
-    function updateQuestUI() {
-        const q = gameState.player.activeQuest;
-        if (q) {
-            document.getElementById('quest-title').innerText = q.name;
-            document.getElementById('quest-progress').innerText = `${q.current}/${q.targetCount} ${q.target}s`;
-        }
+function updateQuestUI() {
+    const q = gameState.player.activeQuest;
+    const qt = document.getElementById('quest-title');
+    const qp = document.getElementById('quest-progress');
+
+    if (q && qt && qp) {
+        qt.innerText = q.name;
+        qp.innerText = `${q.current}/${q.targetCount} ${q.target}s`;
     }
 }
 
