@@ -1,4 +1,4 @@
-console.log("Script.js loading...");
+
 import './globals.js?v=2';
 import { SpeedR } from './SpeedR.js?v=2';
 import { Physics } from './physics.js?v=2';
