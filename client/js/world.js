@@ -43,6 +43,10 @@ export class WorldManager {
                 const tree = ModelFactory.createProceduralTree(tx, tz);
                 this.scene.add(tree);
 
+                // Track for Fruit Spawner
+                if (!this.treePositions) this.treePositions = [];
+                this.treePositions.push({ x: tx, z: tz });
+
                 // Add collision if desired, or simplified trunk collision?
                 // For now, visual only to avoid physics complexity overhead unless requested.
             }
