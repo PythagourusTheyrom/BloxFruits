@@ -1,27 +1,27 @@
 
-import './globals.js?v=2';
-import { SpeedR } from './SpeedR.js?v=2';
-import { Physics } from './physics.js?v=2';
-import { Combat } from './combat.js?v=2';
-import { FruitSystem } from './fruits.js?v=2';
-import { NPCSystem } from './npc.js?v=2';
-import { ModelFactory } from './models.js?v=2';
-import { HitSystem } from './hit_system.js?v=2';
-import { BossSystem } from './boss.js?v=2';
-import { InteractionSystem } from './interaction.js?v=2';
-import { BoatSystem } from './boats.js?v=2';
-import { SkillSystem } from './skills.js?v=2';
-import { WeaponFactory } from './weapons.js?v=2';
-import { CharacterController } from './controller.js?v=2';
-import { CameraControl as CameraCtrl } from './camera.js?v=2';
+import './globals.js';
+import { SpeedR } from './SpeedR.js';
+import { Physics } from './physics.js';
+import { Combat } from './combat.js';
+import { FruitSystem } from './fruits.js';
+import { NPCSystem } from './npc.js';
+import { ModelFactory } from './models.js';
+import { HitSystem } from './hit_system.js';
+import { BossSystem } from './boss.js';
+import { InteractionSystem } from './interaction.js';
+import { BoatSystem } from './boats.js';
+import { SkillSystem } from './skills.js';
+import { WeaponFactory } from './weapons.js';
+import { CharacterController } from './controller.js';
+import { CameraControl as CameraCtrl } from './camera.js';
 
-import { InventorySystem, QuestTracker } from './ui.js?v=2';
+import { InventorySystem, QuestTracker } from './ui.js';
 
-import { GhostEffect, FloatingText, SpecialEffects } from './effects.js?v=2';
-import { DayNightCycle } from './day_night.js?v=2';
-import { ZoneSystem } from './zones.js?v=2';
-import { WorldManager } from './world.js?v=2';
-import { ParticleSystem } from './particles.js?v=2';
+import { GhostEffect, FloatingText, SpecialEffects } from './effects.js';
+import { DayNightCycle } from './day_night.js';
+import { ZoneSystem } from './zones.js';
+import { WorldManager } from './world.js';
+import { ParticleSystem } from './particles.js';
 
 function log(msg) {
     const d = document.getElementById('debug-console');
