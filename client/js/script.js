@@ -493,6 +493,22 @@ function init(token, roomID) {
         bossSystem.spawnBoss("Gorilla King", -50, -50);
         bossSystem.spawnBoss("Ice Admiral", 50, 50);
 
+        // --- Fruit Spawner ---
+        // Spawn every 60 seconds
+        setInterval(() => {
+            if (window.roomID && window.roomID.startsWith("private")) { // Only host spawns in private?
+                // Actually for now client-side logic is authoritative in this simple demo
+                fruitSystem.spawnRandomFruit(worldManager.treePositions);
+            } else if (isOfflineMode) {
+                fruitSystem.spawnRandomFruit(worldManager.treePositions);
+            }
+        }, 60000);
+
+        // Initial Random Fruit
+        setTimeout(() => {
+            fruitSystem.spawnRandomFruit(worldManager.treePositions);
+        }, 5000);
+
         animate();
         setupEventListeners();
     } catch (e) {
