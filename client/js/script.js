@@ -13,7 +13,7 @@ import { BoatSystem } from './boats.js?v=2';
 import { SkillSystem } from './skills.js?v=2';
 import { WeaponFactory } from './weapons.js?v=2';
 import { CharacterController } from './controller.js?v=2';
-import { CameraControl } from './camera.js?v=2';
+import { CameraControl as CameraCtrl } from './camera.js?v=2';
 
 import { InventorySystem, QuestTracker } from './ui.js?v=2';
 
