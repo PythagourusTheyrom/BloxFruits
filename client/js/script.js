@@ -340,6 +340,13 @@ window.addEventListener('keydown', (e) => {
             console.log("Simulated Mob Kill");
         }
     }
+    if (e.key === 'l') {
+        // Test Fruit Spawn
+        if (fruitSystem && window.worldManager) {
+            fruitSystem.spawnRandomFruit(window.worldManager.treePositions);
+            console.log("Manual Fruit Spawn Triggered");
+        }
+    }
 });
 
 
