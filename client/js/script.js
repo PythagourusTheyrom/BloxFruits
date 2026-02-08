@@ -1,5 +1,6 @@
 console.log("Script.js loading...");
 import './globals.js?v=2';
+import { SpeedR } from './SpeedR.js?v=2';
 import { Physics } from './physics.js?v=2';
 import { Combat } from './combat.js?v=2';
 import { FruitSystem } from './fruits.js?v=2';
@@ -429,20 +430,14 @@ function init(token, roomID) {
         const zoneSystem = new ZoneSystem(scene);
         const worldManager = new WorldManager(scene, physics);
         const particleSystem = new ParticleSystem(scene);
+        scene.particleSystem = particleSystem;
 
         window.boatSystem = boatSystem; // Global access for loop
         window.skillSystem = skillSystem;
         window.weatherSystem = weatherSystem;
         window.ghostEffect = ghostEffect;
         window.dayNightCycle = dayNightCycle;
-        window.zoneSystem = zoneSystem;
-        window.zoneSystem = zoneSystem;
-        window.particleSystem = particleSystem;
-        window.inventorySystem = new InventorySystem();
 
-        // Initial Item test
-        window.particleSystem = particleSystem;
-        window.inventorySystem = new InventorySystem();
         window.questTracker = new QuestTracker();
 
         // Initial Item test

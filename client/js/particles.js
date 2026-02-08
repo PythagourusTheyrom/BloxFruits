@@ -1,3 +1,5 @@
+import { SpeedR } from './SpeedR.js';
+
 export class ParticleSystem {
     constructor(scene) {
         this.scene = scene;

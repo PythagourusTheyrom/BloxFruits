@@ -1,4 +1,5 @@
 import { ModelFactory } from './models.js';
+import { SpeedR } from './SpeedR.js';
 
 export const FruitsData = {
     // Common
@@ -225,12 +226,12 @@ export class FruitSystem {
 
     castFlamePillar(playerMesh) {
         // Rising cylinder of fire
-        const geo = new THREE.CylinderGeometry(2, 2, 8, 16, 1, true);
-        const mat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
-        const pillar = new THREE.Mesh(geo, mat);
+        const geo = new SpeedR.CylinderGeometry(2, 2, 8, 16, 1, true);
+        const mat = new SpeedR.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.8, side: 2 }); // side 2 = DoubleSide
+        const pillar = new SpeedR.Mesh(geo, mat);
 
         // Position in front of player
-        const offset = new THREE.Vector3(0, 0, -5).applyQuaternion(playerMesh.quaternion);
+        const offset = new SpeedR.Vector3(0, 0, -5).applyQuaternion(playerMesh.quaternion);
         pillar.position.copy(playerMesh.position).add(offset);
         pillar.position.y += 2;
 
@@ -239,264 +240,44 @@ export class FruitSystem {
         // Animate (Rise and fade)
         this.projectiles.push({
             mesh: pillar,
-            velocity: new THREE.Vector3(0, 2, 0), // Rise up
+            velocity: new SpeedR.Vector3(0, 2, 0), // Rise up
             life: 1.0,
             update: (dt) => {
                 pillar.scale.x += dt * 2;
                 pillar.scale.z += dt * 2;
                 pillar.material.opacity -= dt;
-            }
-        });
-    }
 
-    castIceShards(playerMesh) {
-        // Fast small projectiles
-        for (let i = 0; i < 3; i++) {
-            setTimeout(() => {
-                const shard = new THREE.Mesh(
-                    new THREE.ConeGeometry(0.3, 1, 4),
-                    new THREE.MeshBasicMaterial({ color: 0xa5f2f3 })
-                );
-                // Position + spread
-                shard.position.copy(playerMesh.position);
-                shard.position.y += 1.5;
-                shard.rotation.x = -Math.PI / 2; // Point forward
-
-                const spread = (Math.random() - 0.5) * 0.5;
-                const dir = new THREE.Vector3(spread, 0, -1).applyQuaternion(playerMesh.quaternion);
-
-                this.scene.add(shard);
-                this.projectiles.push({ mesh: shard, velocity: dir.multiplyScalar(40), life: 1.5, abilityName: "IceShards" });
-            }, i * 100);
-        }
-    }
-
-    castIceSurge(playerMesh) {
-        // ... existing code ...
-    }
-
-    castIceAge(playerMesh) {
-        // MASSIVE Ice Field
-        const fieldGeo = new THREE.CircleGeometry(50, 32);
-        const fieldMat = new THREE.MeshBasicMaterial({
-            color: 0x00ffff,
-            transparent: true,
-            opacity: 0.0, // Start invisible and fade in
-            side: THREE.DoubleSide
-        });
-        const field = new THREE.Mesh(fieldGeo, fieldMat);
-
-        field.rotation.x = -Math.PI / 2;
-        field.position.copy(playerMesh.position);
-        field.position.y = 1.0; // Just above ground/water
-        this.scene.add(field);
-
-        // Ice Spikes Everywhere
-        const spikes = [];
-        for (let i = 0; i < 30; i++) {
-            const h = 5 + Math.random() * 10;
-            const spike = new THREE.Mesh(
-                new THREE.ConeGeometry(2, h, 5),
-                new THREE.MeshBasicMaterial({ color: 0xa5f2f3 })
-            );
-            // Random pose in circle
-            const angle = Math.random() * Math.PI * 2;
-            const radius = Math.random() * 45;
-            spike.position.set(
-                field.position.x + Math.cos(angle) * radius,
-                field.position.y - 2, // Rise from below
-                field.position.z + Math.sin(angle) * radius
-            );
-            this.scene.add(spike);
-            spikes.push(spike);
-        }
-
-        // Animate
-        this.projectiles.push({
-            mesh: field,
-            life: 5.0,
-            update: (dt) => {
-                // Fade in field
-                if (field.material.opacity < 0.6) field.material.opacity += dt;
-
-                // Rise spikes
-                spikes.forEach(s => {
-                    if (s.position.y < field.position.y) s.position.y += dt * 10;
-                });
-            },
-            onDeath: () => {
-                spikes.forEach(s => this.scene.remove(s));
-            }
-        });
-    }
-
-    castBarrier(playerMesh) {
-        // Create Wall
-        const wall = new THREE.Mesh(
-            new THREE.BoxGeometry(4, 3, 0.5),
-            new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.6, wireframe: true })
-        );
-        // Position in front
-        const offset = new THREE.Vector3(0, 0, -3).applyQuaternion(playerMesh.quaternion);
-        wall.position.copy(playerMesh.position).add(offset);
-        wall.position.y += 1.5;
-        wall.quaternion.copy(playerMesh.quaternion); // Face player direction
-
-        this.scene.add(wall);
-
-        // Physics? For now just visual blocking? 
-        // Adding rigid body would require physics engine access. 
-        // We'll leave it as visual/server-check later.
-
-        setTimeout(() => this.scene.remove(wall), 5000); // Lasts 5s
-    }
-
-    castLoveBeam(playerMesh) {
-        // Heart projectile
-        const heartShape = new THREE.Shape();
-        const x = 0, y = 0;
-        heartShape.moveTo(x + 0.25, y + 0.25);
-        heartShape.bezierCurveTo(x + 0.25, y + 0.25, x + 0.20, y, x, y);
-        heartShape.bezierCurveTo(x - 0.30, y, x - 0.30, y + 0.35, x - 0.30, y + 0.35);
-        heartShape.bezierCurveTo(x - 0.30, y + 0.55, x - 0.10, y + 0.77, x + 0.25, y + 0.95);
-        heartShape.bezierCurveTo(x + 0.60, y + 0.77, x + 0.80, y + 0.55, x + 0.80, y + 0.35);
-        heartShape.bezierCurveTo(x + 0.80, y + 0.35, x + 0.80, y, x + 0.50, y);
-        heartShape.bezierCurveTo(x + 0.35, y, x + 0.25, y + 0.25, x + 0.25, y + 0.25);
-
-        const geom = new THREE.ShapeGeometry(heartShape);
-        const mat = new THREE.MeshBasicMaterial({ color: 0xff1493, side: THREE.DoubleSide });
-        const heart = new THREE.Mesh(geom, mat);
-
-        heart.scale.set(0.5, 0.5, 0.5);
-        heart.rotation.x = Math.PI; // Flip upright
-        heart.position.copy(playerMesh.position);
-        heart.position.y += 2;
-
-        const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerMesh.quaternion);
-
-        this.scene.add(heart);
-        this.projectiles.push({ mesh: heart, velocity: dir.multiplyScalar(20), life: 2.0, abilityName: "LoveBeam" });
-    }
-
-    castMagmaRain(playerMesh) {
-        // Rain from above
-        const count = 5;
-        for (let i = 0; i < count; i++) {
-            setTimeout(() => {
-                const rock = new THREE.Mesh(
-                    new THREE.DodecahedronGeometry(0.5),
-                    new THREE.MeshBasicMaterial({ color: 0x8b0000 })
-                );
-                // Random position above
-                const offset = new THREE.Vector3(
-                    (Math.random() - 0.5) * 5,
-                    10,
-                    (Math.random() - 0.5) * 5 - 5 // In front
-                ).applyQuaternion(playerMesh.quaternion);
-
-                rock.position.copy(playerMesh.position).add(offset);
-
-                this.scene.add(rock);
-
-                this.projectiles.push({
-                    mesh: rock,
-                    velocity: new THREE.Vector3(0, -15, 0), // Fall down
-                    life: 2.0,
-                    abilityName: "MagmaRain"
-                });
-            }, i * 200);
-        }
-    }
-
-    castRoom(playerMesh) {
-        // Giant Hemisphere
-        const geometry = new THREE.SphereGeometry(15, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
-        const material = new THREE.MeshBasicMaterial({ color: 0x87CEEB, transparent: true, opacity: 0.3, side: THREE.DoubleSide, wireframe: true });
-        const room = new THREE.Mesh(geometry, material);
-        room.position.copy(playerMesh.position);
-        room.scale.y = 0.1; // Grow up animation? Start flat
-
-        this.scene.add(room);
-
-        // Expansion Animation
-        let size = 0.1;
-        this.projectiles.push({
-            mesh: room,
-            velocity: new THREE.Vector3(0, 0, 0),
-            life: 5.0,
-            update: (dt) => {
-                room.position.copy(playerMesh.position); // Follow player
-                if (size < 1.0) {
-                    size += dt * 2;
-                    room.scale.set(size, size, size);
+                // Emit particles if scene has system
+                if (this.scene.particleSystem) {
+                    this.scene.particleSystem.emit(pillar.position, 2, 0xff4500);
                 }
             }
         });
     }
 
-    castLightSpeed(playerMesh) {
-        // Teleport / Dash visual
-        const beam = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.5, 0.5, 20, 8),
-            new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.8 })
-        );
-        beam.rotation.x = -Math.PI / 2;
-        beam.position.copy(playerMesh.position);
-        beam.position.y += 2;
-        this.scene.add(beam);
-
-        // Remove quickly
-        setTimeout(() => this.scene.remove(beam), 200);
-
-        // Also push projectiles for damage
-        const laser = new THREE.Mesh(
-            new THREE.SphereGeometry(0.5),
-            new THREE.MeshBasicMaterial({ color: 0xffff00 })
-        );
-        laser.position.copy(playerMesh.position);
-        laser.position.y += 2;
-        const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerMesh.quaternion);
-        this.scene.add(laser);
-        this.projectiles.push({ mesh: laser, velocity: dir.multiplyScalar(60), life: 1.0, abilityName: "LightSpeed" });
-    }
-
-    transformBuddha(playerMesh) {
-        // Toggle Giant
-        if (playerMesh.scale.x === 1) {
-            // GROW
-            // Animate scale? For now instant
-            playerMesh.scale.set(5, 5, 5);
-            // playerMesh.position.y += 5; // Adjust height to not clip?
-            // Actually Physics will snap it up next frame if inside ground.
-
-            // Effect
-            const aura = new THREE.Mesh(
-                new THREE.SphereGeometry(6, 32, 32),
-                new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.3, wireframe: true })
-            );
-            aura.position.copy(playerMesh.position);
-            this.scene.add(aura);
-            setTimeout(() => this.scene.remove(aura), 1000);
-
-        } else {
-            // SHRINK
-            playerMesh.scale.set(1, 1, 1);
-        }
-    }
-
     castFireball(playerMesh) {
-        const sphere = new THREE.Mesh(
-            new THREE.SphereGeometry(1, 16, 16),
-            new THREE.MeshBasicMaterial({ color: 0xff4500 })
+        const sphere = new SpeedR.Mesh(
+            new SpeedR.SphereGeometry(1, 16, 16),
+            new SpeedR.MeshBasicMaterial({ color: 0xff4500 })
         );
         sphere.position.copy(playerMesh.position);
         sphere.position.y += 1.5;
 
         // Direction
-        const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(playerMesh.quaternion);
+        const dir = new SpeedR.Vector3(0, 0, -1).applyQuaternion(playerMesh.quaternion);
 
         this.scene.add(sphere);
-        this.projectiles.push({ mesh: sphere, velocity: dir.multiplyScalar(30), life: 2.0, abilityName: "Fireball" });
+        this.projectiles.push({
+            mesh: sphere,
+            velocity: dir.multiplyScalar(30),
+            life: 2.0,
+            abilityName: "Fireball",
+            update: (dt) => {
+                if (this.scene.particleSystem) {
+                    this.scene.particleSystem.emit(sphere.position, 1, 0xffaa00);
+                }
+            }
+        });
     }
 
     castTornado(playerMesh) {
