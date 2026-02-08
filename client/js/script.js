@@ -14,7 +14,7 @@ import { SkillSystem } from './skills.js?v=2';
 import { WeaponFactory } from './weapons.js?v=2';
 import { CharacterController } from './controller.js?v=2';
 import { CameraControl } from './camera.js?v=2';
-import { CameraControl } from './camera.js?v=2';
+
 import { InventorySystem, QuestTracker } from './ui.js?v=2';
 
 import { GhostEffect, FloatingText, SpecialEffects } from './effects.js?v=2';
