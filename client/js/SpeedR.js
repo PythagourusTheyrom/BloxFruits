@@ -705,9 +705,168 @@ export const SpeedR = {
         }
     },
     // Cylinder/Cone/Sphere mapping to Box for now (Simplification)
-    CylinderGeometry: class { constructor(rt, rb, h, rs) { return new SpeedR.BoxGeometry(rt * 2, h, rt * 2); } },
-    ConeGeometry: class { constructor(r, h, rs) { return new SpeedR.BoxGeometry(r * 2, h, r * 2); } },
-    DodecahedronGeometry: class { constructor(r) { return new SpeedR.BoxGeometry(r * 2, r * 2, r * 2); } },
+    CylinderGeometry: class {
+        constructor(radiusTop = 1, radiusBottom = 1, height = 1, radialSegments = 8, heightSegments = 1, openEnded = false) {
+            this.type = "Cylinder";
+            this.parameters = { radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded };
+
+            const indices = [];
+            const vertices = [];
+            const normals = [];
+            const uvs = [];
+
+            // Helper for generating the torso
+            let index = 0;
+            const indexArray = [];
+            const halfHeight = height / 2;
+
+            function generateTorso() {
+                let x, z;
+                const normal = new SpeedR.Vector3();
+                const vertex = new SpeedR.Vector3();
+
+                // Calculate slope for normal lookups
+                const slope = (radiusBottom - radiusTop) / height;
+
+                for (let y = 0; y <= heightSegments; y++) {
+                    const indexRow = [];
+                    const v = y / heightSegments;
+                    const radius = v * (radiusBottom - radiusTop) + radiusTop;
+
+                    for (let xCount = 0; xCount <= radialSegments; xCount++) {
+                        const u = xCount / radialSegments;
+                        const theta = u * Math.PI * 2;
+
+                        const sinTheta = Math.sin(theta);
+                        const cosTheta = Math.cos(theta);
+
+                        // Vertex
+                        vertex.x = radius * sinTheta;
+                        vertex.y = -v * height + halfHeight;
+                        vertex.z = radius * cosTheta;
+                        vertices.push(vertex.x, vertex.y, vertex.z);
+
+                        // Normal
+                        normal.set(sinTheta, slope, cosTheta).normalize();
+                        normals.push(normal.x, normal.y, normal.z);
+
+                        // UV
+                        uvs.push(u, 1 - v);
+
+                        // Save index
+                        indexRow.push(index++);
+                    }
+                    indexArray.push(indexRow);
+                }
+
+                for (let x = 0; x < radialSegments; x++) {
+                    for (let y = 0; y < heightSegments; y++) {
+                        const a = indexArray[y][x];
+                        const b = indexArray[y + 1][x];
+                        const c = indexArray[y + 1][x + 1];
+                        const d = indexArray[y][x + 1];
+
+                        indices.push(a, b, d);
+                        indices.push(b, c, d);
+                    }
+                }
+            }
+
+            function generateCap(top) {
+                let centerIndexStart, centerIndexEnd;
+                const radius = (top === true) ? radiusTop : radiusBottom;
+                const sign = (top === true) ? 1 : -1;
+
+                // Center vertex
+                centerIndexStart = index;
+                vertices.push(0, halfHeight * sign, 0);
+                normals.push(0, sign, 0);
+                uvs.push(0.5, 0.5);
+                index++;
+                centerIndexEnd = index;
+
+                for (let x = 0; x <= radialSegments; x++) {
+                    const u = x / radialSegments;
+                    const theta = u * Math.PI * 2;
+                    const cosTheta = Math.cos(theta);
+                    const sinTheta = Math.sin(theta);
+
+                    vertices.push(radius * sinTheta, halfHeight * sign, radius * cosTheta);
+                    normals.push(0, sign, 0);
+                    uvs.push((cosTheta * 0.5) + 0.5, (sinTheta * 0.5 * sign) + 0.5);
+                    index++;
+                }
+
+                for (let x = 0; x < radialSegments; x++) {
+                    const c = centerIndexStart;
+                    const i = centerIndexEnd + x;
+                    if (top === true) {
+                        indices.push(i, i + 1, c);
+                    } else {
+                        indices.push(i + 1, i, c);
+                    }
+                }
+            }
+
+            generateTorso();
+            if (openEnded === false) {
+                if (radiusTop > 0) generateCap(true);
+                if (radiusBottom > 0) generateCap(false);
+            }
+
+            // Convert indices to non-indexed buffer geometry style (expand)
+            const expPos = [];
+            const expNorm = [];
+            const expUv = [];
+
+            for (let i = 0; i < indices.length; i++) {
+                const idx = indices[i];
+                expPos.push(vertices[idx * 3], vertices[idx * 3 + 1], vertices[idx * 3 + 2]);
+                expNorm.push(normals[idx * 3], normals[idx * 3 + 1], normals[idx * 3 + 2]);
+                expUv.push(uvs[idx * 2], uvs[idx * 2 + 1]);
+            }
+
+            this.attributes = {
+                position: new SpeedR.Float32BufferAttribute(new Float32Array(expPos), 3),
+                normal: new SpeedR.Float32BufferAttribute(new Float32Array(expNorm), 3),
+                uv: new SpeedR.Float32BufferAttribute(new Float32Array(expUv), 2)
+            };
+        }
+    },
+
+    ConeGeometry: class {
+        constructor(radius = 1, height = 1, radialSegments = 8, heightSegments = 1, openEnded = false) {
+            // Cone is just a Cylinder with radiusTop = 0
+            return new SpeedR.CylinderGeometry(0, radius, height, radialSegments, heightSegments, openEnded);
+        }
+    },
+
+    DodecahedronGeometry: class {
+        constructor(radius = 1, detail = 0) {
+            this.type = "Dodecahedron";
+            // Approximation using Sphere for now as true Dodecahedron math is verbose
+            // But let's make it look faceted by using low polygon count sphere
+            // A regular dodecahedron has 12 faces.
+            // Using an Icosahedron with detail 0 gives 20 faces. Close enough for "gem" look.
+            // Or just use our Sphere with specific segments?
+            // Sphere(radius, 5, 3) gives a somewhat faceted look.
+
+            // Let's implement a basic Icosahedron (20 faces) which is often used for "Dodecahedron" style calls in games
+            // True Dodecahedron vertices:
+            const t = (1 + Math.sqrt(5)) / 2;
+            const r = 1 / Math.sqrt(3);
+
+            // Vertices of a Dodecahedron (normalized to radius 1)
+            // (±1, ±1, ±1)
+            // (0, ±1/φ, ±φ)
+            // (±1/φ, ±φ, 0)
+            // (±φ, 0, ±1/φ)
+
+            // For simplicity in this lightweight engine, we will fallback to a Low-Poly Sphere (Icosahedron-ish)
+            // to avoid huge vertex arrays hardcoded here.
+            return new SpeedR.SphereGeometry(radius, 6, 4); // Low poly sphere
+        }
+    },
     PlaneGeometry: class {
         constructor(w, h) {
             // Simple Plane flat on XY
