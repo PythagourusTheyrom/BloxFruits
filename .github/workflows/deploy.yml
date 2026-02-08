@@ -32,6 +32,16 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Check directory existence
+        run: |
+          if [ -d "./client" ]; then
+            echo "Client directory exists."
+            ls -la ./client
+          else
+            echo "Client directory does not exist!"
+            exit 1
+          fi
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
