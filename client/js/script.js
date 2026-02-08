@@ -117,6 +117,11 @@ function updateUI() {
 
     const bDisplay = document.getElementById('bounty-display');
     if (bDisplay) bDisplay.innerText = "Bounty: " + (p.bounty || 0);
+
+    // Call secondary updates
+    if (typeof updateSecondaryUI === 'function') updateSecondaryUI();
+    // Quest UI is updated via events, but good to check
+    if (typeof updateQuestUI === 'function') updateQuestUI();
 }
 
 window.handleAuth = async function () {
