@@ -66,6 +66,23 @@ export class FruitSystem {
         console.log(`Spawned ${type} at ${x}, ${z}`);
     }
 
+    spawnRandomFruit(locations) {
+        if (!locations || locations.length === 0) return;
+
+        // 1. Pick Random Location
+        const loc = locations[Math.floor(Math.random() * locations.length)];
+
+        // 2. Pick Random Fruit Type
+        const keys = Object.keys(FruitsData);
+        const type = keys[Math.floor(Math.random() * keys.length)];
+
+        // 3. Spawn (with slight offset)
+        const offsetX = (Math.random() - 0.5) * 5;
+        const offsetZ = (Math.random() - 0.5) * 5;
+
+        this.spawnFruit(type, loc.x + offsetX, loc.z + offsetZ);
+    }
+
     updateFruits(dt) {
         this.spawnedFruits.forEach(f => {
             if (f.update) f.update(dt);
