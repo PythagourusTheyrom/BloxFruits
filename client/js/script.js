@@ -31,7 +31,16 @@ window.onerror = function (msg, url, line) {
     const d = document.getElementById('debug-console');
     if (d) d.style.display = 'block';
     log("ERROR: " + msg + " at " + line);
+    log("ERROR: " + msg + " at " + line);
 };
+
+// --- OFFLINE MODE DETECTION ---
+const isOfflineMode = window.location.hostname.includes('github.io') || window.location.hostname.includes('localhost-demo');
+if (isOfflineMode) {
+    console.log("%c OFFLINE / DEMO MODE ACTIVE ", "background: #222; color: #bada55; font-size: 20px");
+    document.getElementById('auth-msg').innerText = "Demo Mode: Multiplayer Unavailable";
+}
+
 
 // Game State
 let gameState = {
@@ -125,6 +134,15 @@ window.handleAuth = async function () {
     if (spinner) spinner.classList.remove('hidden');
 
     try {
+        if (isOfflineMode) {
+            // MOCK AUTH
+            setTimeout(() => {
+                const mockToken = "mock_token_" + Math.random();
+                showDashboard(mockToken, username || "Guest_Demo");
+            }, 500);
+            return;
+        }
+
         const endpoint = authMode === 'login' ? '/api/login' : '/api/register';
         const res = await fetch(endpoint, {
             method: 'POST',
@@ -164,6 +182,11 @@ window.handleAuth = async function () {
             showDashboard(data.token, data.username);
         }
     } catch (e) {
+        if (isOfflineMode) {
+            // Fallback if fetch fails in what we thought was online but is actually offline
+            showDashboard("mock_token", username || "Guest");
+            return;
+        }
         msg.innerText = "Network Error";
         msg.style.color = '#ff3333';
         console.error(e);
@@ -181,6 +204,13 @@ window.handleGuestAuth = async function () {
     if (spinner) spinner.classList.remove('hidden');
 
     try {
+        if (isOfflineMode) {
+            setTimeout(() => {
+                showDashboard("guest_token", "Guest_" + Math.floor(Math.random() * 1000));
+            }, 500);
+            return;
+        }
+
         const res = await fetch('/api/guest', { method: 'POST' });
         const data = await res.json();
 
@@ -192,6 +222,10 @@ window.handleGuestAuth = async function () {
 
         showDashboard(data.token, data.username);
     } catch (e) {
+        if (isOfflineMode) {
+            showDashboard("guest_token", "Guest_Offline");
+            return;
+        }
         msg.innerText = "Network Error";
         msg.style.color = '#ff3333';
         console.error(e);
@@ -473,6 +507,78 @@ function init(token, roomID) {
 }
 
 function setupWebSocket(token, roomID) {
+    if (isOfflineMode) {
+        console.log("Setting up MOCK WebSocket");
+
+        // MOCK SOCKET SIMULATION
+        socket = {
+            readyState: 1, // OPEN
+            send: function (msgStr) {
+                const msg = JSON.parse(msgStr);
+                console.log("[MOCK WS] Sent:", msg);
+
+                if (msg.type === 'join_team') {
+                    // Ack Join
+                    setTimeout(() => {
+                        this.onmessage({
+                            data: JSON.stringify({
+                                type: 'init',
+                                id: gameState.myID || "Player_1",
+                                role: 'user'
+                            })
+                        });
+
+                        // Send initial state with just me
+                        const p = {};
+                        p[gameState.myID || "Player_1"] = {
+                            x: 0, y: 5, z: 0,
+                            team: msg.team,
+                            health: 100,
+                            maxHealth: 100,
+                            weapon: 'Combat'
+                        };
+                        this.onmessage({
+                            data: JSON.stringify({
+                                type: 'state',
+                                players: p
+                            })
+                        });
+
+                    }, 100);
+                } else if (msg.type === 'chat') {
+                    // Echo chat
+                    setTimeout(() => {
+                        this.onmessage({
+                            data: JSON.stringify({
+                                type: 'chat',
+                                id: gameState.myID || "Player_1",
+                                role: 'user',
+                                item: msg.item
+                            })
+                        });
+                    }, 50);
+                }
+            },
+            onopen: function () { },
+            onmessage: function () { }
+        };
+
+        // Trigger onopen manually
+        setTimeout(() => {
+            if (socket.onopen) socket.onopen();
+            // Send Init
+            if (socket.onmessage) socket.onmessage({
+                data: JSON.stringify({
+                    type: 'init',
+                    id: "Player_" + Math.floor(Math.random() * 1000),
+                    role: 'user'
+                })
+            });
+        }, 100);
+
+        return;
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     // Append room to query string
     socket = new WebSocket(`${protocol}://${window.location.host}/ws?token=${encodeURIComponent(token)}&room=${encodeURIComponent(roomID)}`);
@@ -481,9 +587,13 @@ function setupWebSocket(token, roomID) {
         console.log("Connected to server: " + roomID);
     };
 
+    if (window.originalOnMessage) {
+        socket.onmessage = window.originalOnMessage;
+    }
 };
 
-socket.onmessage = (event) => {
+// Change socket.onmessage assignment to safely handle mock
+const originalOnMessage = (event) => {
     const msg = JSON.parse(event.data);
 
     if (msg.type === 'init') {
@@ -554,6 +664,24 @@ socket.onmessage = (event) => {
         }
     }
 };
+
+// Assign the listener
+if (socket && !isOfflineMode) {
+    socket.onmessage = originalOnMessage;
+} else if (isOfflineMode && socket) {
+    socket.onmessage = originalOnMessage;
+}
+// If socket is initialized later (which it is), we need a helper to attach it.
+// The init() function calls setupWebSocket().
+// We will modify setupWebSocket to attach this listener if not offline.
+// But wait, setupWebSocket sets up a NEW socket instance.
+// The originalOnMessage needs to be attached to THAT instance.
+
+// Let's attach it to window so setupWebSocket can use it
+window.originalOnMessage = originalOnMessage;
+
+// We need to modify setupWebSocket again to use this
+
 
 
 function updateMobs(mobsData) {
