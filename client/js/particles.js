@@ -18,9 +18,10 @@ export class ParticleSystem {
     }
 
     spawnParticle(position, color) {
-        const geo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-        const mat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.6 });
-        const mesh = new THREE.Mesh(geo, mat);
+        // Use SpeedR classes
+        const geo = new SpeedR.BoxGeometry(0.2, 0.2, 0.2);
+        const mat = new SpeedR.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.6 });
+        const mesh = new SpeedR.Mesh(geo, mat);
 
         // Spawn at pos
         mesh.position.copy(position);
@@ -35,7 +36,7 @@ export class ParticleSystem {
         this.particles.push({
             mesh: mesh,
             life: 0.8, // seconds
-            velocity: new THREE.Vector3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).multiplyScalar(2)
+            velocity: new SpeedR.Vector3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).multiplyScalar(2)
         });
     }
 
