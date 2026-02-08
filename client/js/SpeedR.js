@@ -959,6 +959,184 @@ export const SpeedR = {
         }
     },
 
+    CylinderGeometry: class {
+        constructor(radiusTop = 1, radiusBottom = 1, height = 1, radialSegments = 8, heightSegments = 1, openEnded = false, thetaStart = 0, thetaLength = Math.PI * 2) {
+            this.type = 'CylinderGeometry';
+            this.parameters = { radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength };
+
+            const scope = this;
+
+            const indices = [];
+            const vertices = [];
+            const normals = [];
+            const uvs = [];
+
+            // helper functions
+
+            let index = 0;
+            const indexArray = [];
+            const halfHeight = height / 2;
+            const groupStart = 0;
+
+            generateTorso();
+
+            if (openEnded === false) {
+                if (radiusTop > 0) generateCap(true);
+                if (radiusBottom > 0) generateCap(false);
+            }
+
+            function generateTorso() {
+                let x, y;
+                const normal = new SpeedR.Vector3();
+                const vertex = new SpeedR.Vector3();
+
+                // this will be used to calculate the normal
+                const slope = (radiusBottom - radiusTop) / height;
+
+                // generate vertices, normals and uvs
+
+                for (y = 0; y <= heightSegments; y++) {
+                    const indexRow = [];
+                    const v = y / heightSegments;
+
+                    // calculate the radius of the current row
+                    const radius = v * (radiusBottom - radiusTop) + radiusTop;
+
+                    for (x = 0; x <= radialSegments; x++) {
+                        const u = x / radialSegments;
+                        const theta = u * thetaLength + thetaStart;
+
+                        const sinTheta = Math.sin(theta);
+                        const cosTheta = Math.cos(theta);
+
+                        // vertex
+                        vertex.x = radius * sinTheta;
+                        vertex.y = - v * height + halfHeight;
+                        vertex.z = radius * cosTheta;
+                        vertices.push(vertex.x, vertex.y, vertex.z);
+
+                        // normal
+                        normal.set(sinTheta, slope, cosTheta).normalize();
+                        normals.push(normal.x, normal.y, normal.z);
+
+                        // uv
+                        uvs.push(u, 1 - v);
+
+                        // save index of vertex in respective row
+                        indexRow.push(index++);
+                    }
+
+                    indexArray.push(indexRow);
+                }
+
+                // generate indices
+
+                for (x = 0; x < radialSegments; x++) {
+                    for (y = 0; y < heightSegments; y++) {
+                        // we use the index array to access the index in the generation order
+                        const a = indexArray[y][x];
+                        const b = indexArray[y + 1][x];
+                        const c = indexArray[y + 1][x + 1];
+                        const d = indexArray[y][x + 1];
+
+                        // faces
+                        indices.push(a, b, d);
+                        indices.push(b, c, d);
+                    }
+                }
+            }
+
+            function generateCap(top) {
+                let x, centerIndexStart, centerIndexEnd;
+                const uv = new SpeedR.Vector2();
+                const vertex = new SpeedR.Vector3();
+
+                let groupCount = 0;
+
+                const radius = (top === true) ? radiusTop : radiusBottom;
+                const sign = (top === true) ? 1 : - 1;
+
+                // save the index of the first center vertex
+                centerIndexStart = index;
+
+                for (x = 1; x <= radialSegments; x++) {
+                    vertices.push(0, halfHeight * sign, 0);
+                    normals.push(0, sign, 0);
+                    uvs.push(0.5, 0.5);
+                    index++;
+                }
+
+                // save the index of the last center vertex
+                centerIndexEnd = index;
+
+                for (x = 0; x <= radialSegments; x++) {
+                    const u = x / radialSegments;
+                    const theta = u * thetaLength + thetaStart;
+
+                    const cosTheta = Math.cos(theta);
+                    const sinTheta = Math.sin(theta);
+
+                    vertex.x = radius * sinTheta;
+                    vertex.y = halfHeight * sign;
+                    vertex.z = radius * cosTheta;
+                    vertices.push(vertex.x, vertex.y, vertex.z);
+
+                    // normal
+                    normals.push(0, sign, 0);
+
+                    // uv
+                    uv.x = (cosTheta * 0.5) + 0.5;
+                    uv.y = (sinTheta * 0.5 * sign) + 0.5;
+                    uvs.push(uv.x, uv.y);
+
+                    index++;
+                }
+
+                for (x = 0; x < radialSegments; x++) {
+                    const c = centerIndexStart + x;
+                    const i = centerIndexEnd + x;
+
+                    if (top === true) {
+                        // face top
+                        indices.push(i, i + 1, c);
+                    } else {
+                        // face bottom
+                        indices.push(i + 1, i, c);
+                    }
+                }
+            }
+
+            // Expand to Triangles
+            const expPos = [];
+            const expNorm = [];
+            const expUv = [];
+
+            for (let i = 0; i < indices.length; i++) {
+                const idx = indices[i];
+                expPos.push(vertices[idx * 3], vertices[idx * 3 + 1], vertices[idx * 3 + 2]);
+                expNorm.push(normals[idx * 3], normals[idx * 3 + 1], normals[idx * 3 + 2]);
+                expUv.push(uvs[idx * 2], uvs[idx * 2 + 1]);
+            }
+
+            this.attributes = {
+                position: new SpeedR.Float32BufferAttribute(new Float32Array(expPos), 3),
+                normal: new SpeedR.Float32BufferAttribute(new Float32Array(expNorm), 3),
+                uv: new SpeedR.Float32BufferAttribute(new Float32Array(expUv), 2)
+            };
+        }
+    },
+
+    ConeGeometry: class {
+        constructor(radius = 1, height = 1, radialSegments = 8, heightSegments = 1, openEnded = false, thetaStart = 0, thetaLength = Math.PI * 2) {
+            this.type = 'ConeGeometry';
+            // Cone is just a Cylinder with top radius 0
+            const cylinder = new SpeedR.CylinderGeometry(0, radius, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength);
+
+            this.parameters = cylinder.parameters;
+            this.attributes = cylinder.attributes;
+        }
+    },
+
     TetrahedronGeometry: class {
         constructor(radius = 1, detail = 0) {
             this.type = "Tetrahedron";
