@@ -417,4 +417,4 @@ func (mm *MobManager) Update(deltaTime float64) {
 
 func distance(x1, z1, x2, z2 float64) float64 {
 	return math.Sqrt(math.Pow(x2-x1, 2) + math.Pow(z2-z1, 2))
-
+}
