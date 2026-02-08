@@ -3,6 +3,7 @@
 # AutoSync Script for BloxFruits
 # Usage: ./autosync.sh [optional_commit_message]
 
+while true; do
 # Get the current timestamp
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 
@@ -26,3 +27,4 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD)
 git push origin $BRANCH
 
 echo "AutoSync Complete!"
+done
