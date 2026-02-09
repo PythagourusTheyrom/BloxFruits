@@ -228,7 +228,12 @@ window.handleGuestAuth = async function () {
             return;
         }
 
-        const res = await fetch('/api/guest', { method: 'POST' });
+        let baseUrl = "";
+        if (window.location.hostname.includes('github.io')) {
+            baseUrl = "https://bloxfruits-backend.onrender.com"; // REPLACE WITH YOUR ACTUAL RENDER APP URL
+        }
+
+        const res = await fetch(baseUrl + '/api/guest', { method: 'POST' });
         const data = await res.json();
 
         if (!res.ok) {
