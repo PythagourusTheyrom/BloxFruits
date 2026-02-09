@@ -155,7 +155,12 @@ window.handleAuth = async function () {
             return;
         }
 
-        const endpoint = authMode === 'login' ? '/api/login' : '/api/register';
+        let baseUrl = "";
+        if (window.location.hostname.includes('github.io')) {
+            baseUrl = "https://bloxfruits-backend.onrender.com"; // REPLACE WITH YOUR ACTUAL RENDER APP URL
+        }
+
+        const endpoint = baseUrl + (authMode === 'login' ? '/api/login' : '/api/register');
         const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
