@@ -609,8 +609,16 @@ function setupWebSocket(token, roomID) {
     }
 
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    let host = window.location.host;
+
+    // If hosted on GitHub Pages (production client), point to Render backend
+    if (window.location.hostname.includes('github.io')) {
+        host = 'bloxfruits-backend.onrender.com'; // REPLACE WITH YOUR ACTUAL RENDER APP URL
+        // Example: host = 'bloxfruits-api.onrender.com';
+    }
+
     // Append room to query string
-    socket = new WebSocket(`${protocol}://${window.location.host}/ws?token=${encodeURIComponent(token)}&room=${encodeURIComponent(roomID)}`);
+    socket = new WebSocket(`${protocol}://${host}/ws?token=${encodeURIComponent(token)}&room=${encodeURIComponent(roomID)}`);
 
     socket.onopen = () => {
         console.log("Connected to server: " + roomID);
