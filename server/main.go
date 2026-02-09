@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"os"
 	"sync"
 	"time"
 
@@ -350,8 +351,20 @@ type InputMessage struct {
 
 func main() {
 	reset := flag.Bool("reset", false, "Reset the database")
-	port := flag.String("port", "3000", "Port to listen on")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	// flag.Parse() // Flags might interfere with env vars on some platforms, but we can keep if needed.
+	// Actually, let's keep flag as override if someone really wants it, but env var is primary for Render.
+	// Better: Check flag first, then env?
+	// Render sets PORT.
+	// Let's do:
+	pFlag := flag.String("port", "", "Port to listen on")
 	flag.Parse()
+	if *pFlag != "" {
+		port = *pFlag
+	}
 
 	initDB()
 
