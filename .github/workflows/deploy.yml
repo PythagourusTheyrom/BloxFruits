@@ -3,23 +3,18 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying static files
   deploy:
     environment:
       name: github-pages
@@ -32,20 +27,9 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Check directory existence
-        run: |
-          if [ -d "./client" ]; then
-            echo "Client directory exists."
-            ls -la ./client
-          else
-            echo "Client directory does not exist!"
-            exit 1
-          fi
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Deploy the 'client' folder
           path: './client'
 
       - name: Deploy to GitHub Pages

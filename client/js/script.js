@@ -36,10 +36,16 @@ window.onerror = function (msg, url, line) {
 };
 
 // --- OFFLINE MODE DETECTION ---
-const isOfflineMode = window.location.hostname.includes('github.io') || window.location.hostname.includes('localhost-demo');
+const urlParams = new URLSearchParams(window.location.search);
+const isOfflineMode = window.location.hostname.includes('github.io') ||
+    window.location.hostname.includes('localhost-demo') ||
+    urlParams.has('offline') ||
+    urlParams.has('demo');
+
 if (isOfflineMode) {
     console.log("%c OFFLINE / DEMO MODE ACTIVE ", "background: #222; color: #bada55; font-size: 20px");
-    document.getElementById('auth-msg').innerText = "Demo Mode: Multiplayer Unavailable";
+    const authMsg = document.getElementById('auth-msg');
+    if (authMsg) authMsg.innerText = "Demo Mode: Multiplayer Unavailable";
 }
 
 
