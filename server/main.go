@@ -878,7 +878,7 @@ func main() {
 		return c.JSON(fiber.Map{"token": token, "username": user.ID})
 	})
 
-	log.Fatal(app.Listen(":" + *port))
+	log.Fatal(app.Listen(":" + port))
 }
 
 func hasItem(inv []string, item string) bool {

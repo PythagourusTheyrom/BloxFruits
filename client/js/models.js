@@ -1,5 +1,5 @@
 import { SpeedR as THREE } from './SpeedR.js';
-import { SimpleOBJLoader } from './loader.js?v=2';
+import { SimpleOBJLoader } from './loader.js';
 
 export const ModelFactory = {
     loader: new SimpleOBJLoader(),
