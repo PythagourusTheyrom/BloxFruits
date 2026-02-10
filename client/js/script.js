@@ -622,9 +622,8 @@ function setupWebSocket(token, roomID) {
     let host = window.location.host;
 
     // If hosted on GitHub Pages (production client), point to Render backend
-    if (window.location.hostname.includes('github.io')) {
-        host = 'bloxfruits-backend.onrender.com'; // REPLACE WITH YOUR ACTUAL RENDER APP URL
-        // Example: host = 'bloxfruits-api.onrender.com';
+    if (window.location.hostname.includes('github.io') || window.location.hostname.includes('blozfruits.io')) {
+        host = 'blozfruits.io'; // Custom Domain
     }
 
     // Append room to query string
