@@ -4,20 +4,18 @@ FROM golang:1.24-alpine AS builder
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
-# Copy go mod and sum files
-COPY go.mod go.sum ./
-
-# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
-RUN go mod download
-
-# Copy the source from the current directory to the Working Directory inside the container
+# Copy the source code first to get the nested go.mod
 COPY server/ ./server/
 COPY client/ ./client/
 
+# Set workdir to server where the real go.mod is
+WORKDIR /app/server
+
+# Download dependencies for the server module
+RUN go mod download
+
 # Build the Go app
-# We need to point to server/main.go properly.
-# Assuming we want to build the binary named 'bloxfruits'
-RUN go build -o bloxfruits ./server/main.go
+RUN go build -o /app/bloxfruits .
 
 # Start a new stage from scratch
 FROM alpine:latest  
