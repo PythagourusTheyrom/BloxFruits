@@ -17,7 +17,7 @@ COPY client/ ./client/
 # Build the Go app
 # We need to point to server/main.go properly.
 # Assuming we want to build the binary named 'bloxfruits'
-RUN go build -o bloxfruits ./server
+RUN go build -o bloxfruits ./server/main.go
 
 # Start a new stage from scratch
 FROM alpine:latest  
