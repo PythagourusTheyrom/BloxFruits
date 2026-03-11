@@ -847,8 +847,8 @@ func main() {
 			hub.players[guestID] = p
 		}
 
-		// Generate Token (Simple UUID or just ID for this demo)
-		token := guestID // In real app, use JWT. Here we use ID as token key in hub.tokens
+		// Generate Secure Token
+		token := generateSecureToken()
 		hub.tokens[token] = guestID
 		hub.mutex.Unlock()
 
@@ -875,6 +875,7 @@ func main() {
 		}
 
 		// Generate secure token
+		token := generateSecureToken()
 		tokenBytes := make([]byte, 32)
 		if _, err := rand.Read(tokenBytes); err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Failed to generate token"})
@@ -973,6 +974,14 @@ func createQuestUpdateMsg(p *Player) []byte {
 
 func generateID() string {
 	return time.Now().Format("150405.000000") // Simple ID
+}
+
+func generateSecureToken() string {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return generateID() // Fallback to semi-random ID if crypto/rand fails
+	}
+	return hex.EncodeToString(b)
 }
 
 func getWeaponDamage(w string) int {
