@@ -95,7 +95,7 @@ func newHub() *Hub {
 func (h *Hub) run() {
 	// ~1200 TPS (High tick rate for smooth movement?)
 	// Actually 1200 TPS is overkill. Let's do 60 TPS -> 16ms
-	// The original code had 833us which is wild. Let's fix it to 16ms (60hz)
+	// Fixed to 16ms (60hz)
 	gameTicker := time.NewTicker(16 * time.Millisecond)
 
 	incomeTicker := time.NewTicker(5 * time.Second)    // Passive income
@@ -107,8 +107,6 @@ func (h *Hub) run() {
 	defer incomeTicker.Stop()
 	defer saveTicker.Stop()
 	defer eventTicker.Stop()
-	defer mobTicker.Stop()
-
 	defer mobTicker.Stop()
 
 	// MOB MANAGER INIT
