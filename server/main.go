@@ -194,20 +194,28 @@ func (h *Hub) run() {
 			h.mutex.Unlock()
 
 		case msg := <-h.broadcast:
+			// Copy clients to avoid holding the mutex during blocking writes
 			h.mutex.Lock()
-			for conn := range h.clients {
+			clientsCopy := make(map[*websocket.Conn]string)
+			for conn, id := range h.clients {
+				clientsCopy[conn] = id
+			}
+			h.mutex.Unlock()
+
+			for conn, id := range clientsCopy {
 				// Simple broadcast to all.
 				// In production, might want non-blocking or targeted.
 				// For now, this ensures things like Chat and Events work.
 				// Ignore errors for now or log them?
 				if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
 					log.Printf("Broadcast error: %v", err)
+					h.mutex.Lock()
 					conn.Close()
 					delete(h.clients, conn)
-					delete(h.players, h.clients[conn])
+					delete(h.players, id)
+					h.mutex.Unlock()
 				}
 			}
-			h.mutex.Unlock()
 
 		case <-incomeTicker.C:
 			h.mutex.Lock()

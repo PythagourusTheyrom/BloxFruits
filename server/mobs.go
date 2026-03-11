@@ -250,6 +250,11 @@ func (mm *MobManager) Update(deltaTime float64) {
 							})
 
 							// Broadcast to all clients (simplified, ideally only room)
+							// Send in a goroutine to prevent deadlocking the Hub.run loop,
+							// which handles h.broadcast and also calls MobManager.Update.
+							go func() {
+								mm.hub.broadcast <- castMsg
+							}()
 							// mm.hub.broadcast <- castMsg // This might lock if channel is full?
 							// Better to iterate clients and send, or use a non-blocking send.
 							// Since we are inside MobManager mutex, we must accept that sending might be slow?
