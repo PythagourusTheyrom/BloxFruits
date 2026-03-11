@@ -156,7 +156,7 @@ window.handleAuth = async function () {
         }
 
         let baseUrl = "";
-        if (window.location.hostname.includes('github.io') || window.location.hostname.includes('blozfruits.io')) {
+        if (window.location.hostname.includes('github.io') || window.location.hostname === 'blozfruits.io') {
             baseUrl = "https://blozfruits.io";
         }
 
@@ -547,14 +547,12 @@ function init(token, roomID) {
 
 function setupWebSocket(token, roomID) {
     if (isOfflineMode) {
-        console.log("Setting up MOCK WebSocket");
 
         // MOCK SOCKET SIMULATION
         socket = {
             readyState: 1, // OPEN
             send: function (msgStr) {
                 const msg = JSON.parse(msgStr);
-                console.log("[MOCK WS] Sent:", msg);
 
                 if (msg.type === 'join_team') {
                     // Ack Join
@@ -622,16 +620,12 @@ function setupWebSocket(token, roomID) {
     let host = window.location.host;
 
     // If hosted on GitHub Pages (production client), point to Render backend
-    if (window.location.hostname.includes('github.io') || window.location.hostname.includes('blozfruits.io')) {
+    if (window.location.hostname.includes('github.io') || window.location.hostname === 'blozfruits.io') {
         host = 'blozfruits.io'; // Custom Domain
     }
 
     // Append room to query string
     socket = new WebSocket(`${protocol}://${host}/ws?token=${encodeURIComponent(token)}&room=${encodeURIComponent(roomID)}`);
-
-    socket.onopen = () => {
-        console.log("Connected to server: " + roomID);
-    };
 
     if (window.originalOnMessage) {
         socket.onmessage = window.originalOnMessage;

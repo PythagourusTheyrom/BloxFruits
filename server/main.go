@@ -43,7 +43,6 @@ type Player struct {
 	LastAttack   int64    `json:"-"`
 
 	MsgChan      chan []byte `json:"-"`
-	items        []string    // Private inventory mirror? Or unused? Keeping to avoid breaks if used.
 	EquippedItem string      `json:"equipped"` // Redundant with Weapon but used in struct?
 	Role         string      `json:"role"`
 	HakiActive   bool        `json:"hakiActive"`
@@ -195,20 +194,28 @@ func (h *Hub) run() {
 			h.mutex.Unlock()
 
 		case msg := <-h.broadcast:
+			// Copy clients to avoid holding the mutex during blocking writes
 			h.mutex.Lock()
-			for conn := range h.clients {
+			clientsCopy := make(map[*websocket.Conn]string)
+			for conn, id := range h.clients {
+				clientsCopy[conn] = id
+			}
+			h.mutex.Unlock()
+
+			for conn, id := range clientsCopy {
 				// Simple broadcast to all.
 				// In production, might want non-blocking or targeted.
 				// For now, this ensures things like Chat and Events work.
 				// Ignore errors for now or log them?
 				if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
 					log.Printf("Broadcast error: %v", err)
+					h.mutex.Lock()
 					conn.Close()
 					delete(h.clients, conn)
-					delete(h.players, h.clients[conn])
+					delete(h.players, id)
+					h.mutex.Unlock()
 				}
 			}
-			h.mutex.Unlock()
 
 		case <-incomeTicker.C:
 			h.mutex.Lock()
@@ -381,7 +388,12 @@ func main() {
 	go hub.run()
 
 	// Serve Static Files (Frontend)
-	app.Static("/", "../client")
+	// Check if ./client exists (e.g., in docker) or fallback to ../client
+	clientDir := "../client"
+	if _, err := os.Stat("./client"); err == nil {
+		clientDir = "./client"
+	}
+	app.Static("/", clientDir)
 
 	// WebSocket Endpoint
 	app.Use("/ws", func(c *fiber.Ctx) error {
@@ -864,6 +876,12 @@ func main() {
 
 		// Generate secure token
 		token := generateSecureToken()
+		tokenBytes := make([]byte, 32)
+		if _, err := rand.Read(tokenBytes); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to generate token"})
+		}
+		token := hex.EncodeToString(tokenBytes)
+
 		hub.mutex.Lock()
 		hub.tokens[token] = user.ID
 		// Pre-load player data into hub so it's ready for WS connection?
@@ -893,7 +911,6 @@ func hasItem(inv []string, item string) bool {
 }
 
 func rollRandomFruit(_ float64) string {
-	// r := float64(time.Now().UnixNano() % 100) // Unused now
 
 	// Base Chances:
 	// Dragon (Legendary): 10% (0-9)
