@@ -380,7 +380,12 @@ func main() {
 	go hub.run()
 
 	// Serve Static Files (Frontend)
-	app.Static("/", "../client")
+	// Check if ./client exists (e.g., in docker) or fallback to ../client
+	clientDir := "../client"
+	if _, err := os.Stat("./client"); err == nil {
+		clientDir = "./client"
+	}
+	app.Static("/", clientDir)
 
 	// WebSocket Endpoint
 	app.Use("/ws", func(c *fiber.Ctx) error {
