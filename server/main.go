@@ -335,14 +335,22 @@ func (h *Hub) run() {
 
 func (h *Hub) saveData() {
 	h.mutex.Lock()
-	defer h.mutex.Unlock()
-
-	for _, p := range h.players {
-		if err := SaveUser(p); err != nil {
-			log.Printf("Error saving user %s: %v", p.ID, err)
+	// Snapshot player data to minimize lock time
+	playerData := make(map[string]string, len(h.players))
+	for id, p := range h.players {
+		data, err := json.Marshal(p)
+		if err != nil {
+			log.Printf("Error marshaling user %s: %v", id, err)
+			continue
 		}
+		playerData[id] = string(data)
 	}
-	// log.Println("All users saved to DB")
+	h.mutex.Unlock()
+
+	// Perform batch save outside of the lock
+	if err := SaveUsersBatch(playerData); err != nil {
+		log.Printf("Error in batch save: %v", err)
+	}
 }
 
 // Input message from client

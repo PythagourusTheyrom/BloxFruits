@@ -134,6 +134,31 @@ func SaveUser(player *Player) error {
 	return err
 }
 
+func SaveUsersBatch(playerData map[string]string) error {
+	if len(playerData) == 0 {
+		return nil
+	}
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	stmt, err := tx.Prepare("UPDATE users SET data = ? WHERE username = ?")
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	defer stmt.Close()
+
+	for id, data := range playerData {
+		_, err = stmt.Exec(data, id)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
 func LoadUser(username string) (*Player, error) {
 	var data string
 	row := db.QueryRow("SELECT data FROM users WHERE username = ?", username)
