@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -859,8 +861,13 @@ func main() {
 			return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
 		}
 
-		// Generate simple token
-		token := generateID() // Reuse simple ID gen for token
+		// Generate secure token
+		tokenBytes := make([]byte, 32)
+		if _, err := rand.Read(tokenBytes); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to generate token"})
+		}
+		token := hex.EncodeToString(tokenBytes)
+
 		hub.mutex.Lock()
 		hub.tokens[token] = user.ID
 		// Pre-load player data into hub so it's ready for WS connection?
