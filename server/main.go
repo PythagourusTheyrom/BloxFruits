@@ -891,7 +891,6 @@ func hasItem(inv []string, item string) bool {
 }
 
 func rollRandomFruit(_ float64) string {
-	// r := float64(time.Now().UnixNano() % 100) // Unused now
 
 	// Base Chances:
 	// Dragon (Legendary): 10% (0-9)
