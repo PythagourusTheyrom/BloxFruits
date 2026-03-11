@@ -547,14 +547,12 @@ function init(token, roomID) {
 
 function setupWebSocket(token, roomID) {
     if (isOfflineMode) {
-        console.log("Setting up MOCK WebSocket");
 
         // MOCK SOCKET SIMULATION
         socket = {
             readyState: 1, // OPEN
             send: function (msgStr) {
                 const msg = JSON.parse(msgStr);
-                console.log("[MOCK WS] Sent:", msg);
 
                 if (msg.type === 'join_team') {
                     // Ack Join
@@ -628,10 +626,6 @@ function setupWebSocket(token, roomID) {
 
     // Append room to query string
     socket = new WebSocket(`${protocol}://${host}/ws?token=${encodeURIComponent(token)}&room=${encodeURIComponent(roomID)}`);
-
-    socket.onopen = () => {
-        console.log("Connected to server: " + roomID);
-    };
 
     if (window.originalOnMessage) {
         socket.onmessage = window.originalOnMessage;
