@@ -1,6 +1,9 @@
 # Start from the latest golang base image
 FROM golang:1.24-alpine AS builder
 
+# Install build dependencies for CGO (sqlite3)
+RUN apk add --no-cache gcc musl-dev
+
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
@@ -15,10 +18,10 @@ WORKDIR /app/server
 RUN go mod download
 
 # Build the Go app
-RUN go build -o /app/bloxfruits .
+RUN CGO_ENABLED=1 GOOS=linux go build -o /app/bloxfruits .
 
 # Start a new stage from scratch
-FROM alpine:latest  
+FROM alpine:latest
 
 WORKDIR /root/
 

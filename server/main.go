@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -41,7 +43,6 @@ type Player struct {
 	LastAttack   int64    `json:"-"`
 
 	MsgChan      chan []byte `json:"-"`
-	items        []string    // Private inventory mirror? Or unused? Keeping to avoid breaks if used.
 	EquippedItem string      `json:"equipped"` // Redundant with Weapon but used in struct?
 	Role         string      `json:"role"`
 	HakiActive   bool        `json:"hakiActive"`
@@ -387,7 +388,12 @@ func main() {
 	go hub.run()
 
 	// Serve Static Files (Frontend)
-	app.Static("/", "../client")
+	// Check if ./client exists (e.g., in docker) or fallback to ../client
+	clientDir := "../client"
+	if _, err := os.Stat("./client"); err == nil {
+		clientDir = "./client"
+	}
+	app.Static("/", clientDir)
 
 	// WebSocket Endpoint
 	app.Use("/ws", func(c *fiber.Ctx) error {
@@ -868,8 +874,13 @@ func main() {
 			return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
 		}
 
-		// Generate simple token
-		token := generateID() // Reuse simple ID gen for token
+		// Generate secure token
+		tokenBytes := make([]byte, 32)
+		if _, err := rand.Read(tokenBytes); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to generate token"})
+		}
+		token := hex.EncodeToString(tokenBytes)
+
 		hub.mutex.Lock()
 		hub.tokens[token] = user.ID
 		// Pre-load player data into hub so it's ready for WS connection?
@@ -899,7 +910,6 @@ func hasItem(inv []string, item string) bool {
 }
 
 func rollRandomFruit(_ float64) string {
-	// r := float64(time.Now().UnixNano() % 100) // Unused now
 
 	// Base Chances:
 	// Dragon (Legendary): 10% (0-9)
