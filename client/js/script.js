@@ -156,9 +156,6 @@ window.handleAuth = async function () {
         }
 
         let baseUrl = "";
-        if (window.location.hostname.includes('github.io') || window.location.hostname === 'blozfruits.io') {
-            baseUrl = "https://blozfruits.io";
-        }
 
         const endpoint = baseUrl + (authMode === 'login' ? '/api/login' : '/api/register');
         const res = await fetch(endpoint, {
@@ -229,9 +226,6 @@ window.handleGuestAuth = async function () {
         }
 
         let baseUrl = "";
-        if (window.location.hostname.includes('github.io') || window.location.hostname.includes('blozfruits.io')) {
-            baseUrl = "https://blozfruits.io";
-        }
 
         const res = await fetch(baseUrl + '/api/guest', { method: 'POST' });
         const data = await res.json();
@@ -618,11 +612,6 @@ function setupWebSocket(token, roomID) {
 
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     let host = window.location.host;
-
-    // If hosted on GitHub Pages (production client), point to Render backend
-    if (window.location.hostname.includes('github.io') || window.location.hostname === 'blozfruits.io') {
-        host = 'blozfruits.io'; // Custom Domain
-    }
 
     // Append room to query string
     socket = new WebSocket(`${protocol}://${host}/ws?token=${encodeURIComponent(token)}&room=${encodeURIComponent(roomID)}`);

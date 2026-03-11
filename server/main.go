@@ -881,7 +881,6 @@ func main() {
 		}
 
 		// Generate secure token
-		token := generateSecureToken()
 		tokenBytes := make([]byte, 32)
 		if _, err := rand.Read(tokenBytes); err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Failed to generate token"})
