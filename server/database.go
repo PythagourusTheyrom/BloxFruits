@@ -67,7 +67,11 @@ func RegisterUser(username, password string) error {
 
 	role := "user"
 	if username == "Owner" {
-		if password == "#########" {
+		ownerPassword := os.Getenv("OWNER_PASSWORD")
+		if ownerPassword == "" {
+			return errors.New("OWNER_PASSWORD environment variable is not set")
+		}
+		if password == ownerPassword {
 			role = "owner"
 		} else {
 			return errors.New("invalid password for Owner account")
