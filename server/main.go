@@ -41,7 +41,6 @@ type Player struct {
 	LastAttack   int64    `json:"-"`
 
 	MsgChan      chan []byte `json:"-"`
-	items        []string    // Private inventory mirror? Or unused? Keeping to avoid breaks if used.
 	EquippedItem string      `json:"equipped"` // Redundant with Weapon but used in struct?
 	Role         string      `json:"role"`
 	HakiActive   bool        `json:"hakiActive"`
