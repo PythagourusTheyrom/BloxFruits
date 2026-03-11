@@ -101,6 +101,25 @@ func (mm *MobManager) Update(deltaTime float64) {
 
 	now := time.Now().UnixMilli()
 
+	// Spatial partitioning grid to optimize player distance checks
+	type cellKey struct {
+		x int
+		z int
+	}
+	cellSize := 20.0
+	grid := make(map[cellKey][]*Player)
+
+	mm.hub.mutex.Lock()
+	for _, p := range mm.hub.players {
+		if isSafeZone(p.X, p.Z) {
+			continue
+		}
+		cx := int(math.Floor(p.X / cellSize))
+		cz := int(math.Floor(p.Z / cellSize))
+		grid[cellKey{cx, cz}] = append(grid[cellKey{cx, cz}], p)
+	}
+	mm.hub.mutex.Unlock()
+
 	for _, mob := range mm.Mobs {
 		if mob.State == StateDead {
 			continue
@@ -128,42 +147,45 @@ func (mm *MobManager) Update(deltaTime float64) {
 		var closestPlayer *Player
 		minDist := 15.0 // Detection radius
 
+		mobCx := int(math.Floor(mob.X / cellSize))
+		mobCz := int(math.Floor(mob.Z / cellSize))
+
 		mm.hub.mutex.Lock()
-		for _, p := range mm.hub.players {
-			// Safe Zone Check - Mobs ignore players in safe zones
-			if isSafeZone(p.X, p.Z) {
-				continue
-			}
+		for dx := -1; dx <= 1; dx++ {
+			for dz := -1; dz <= 1; dz++ {
+				key := cellKey{mobCx + dx, mobCz + dz}
+				for _, p := range grid[key] {
+					dist := distance(mob.X, mob.Z, p.X, p.Z)
 
-			dist := distance(mob.X, mob.Z, p.X, p.Z)
+					// Magma Aura Passive (Feature 6)
+					// Apply tick damage every frame? Too fast.
+					// Let's rely on randomness to throttle or add a BurnTimer.
+					// Random 5% chance per tick (20 ticks/sec -> 1 hit/sec avg)
+					if p.Weapon == "Magma Fruit" && dist < 8.0 {
+						if math.Sin(float64(now)) > 0.95 { // Simple random throttle
+							mob.Health -= 5
+							// Don't kill implicitly here without rewards?
+							// Let's just reduce health. If it dies, the next handleMobDamage check will fail?
+							// Or just let it be 1 HP for player to finish.
+							if mob.Health < 1 {
+								mob.Health = 1
+							}
+						}
+					}
 
-			// Magma Aura Passive (Feature 6)
-			// Apply tick damage every frame? Too fast.
-			// Let's rely on randomness to throttle or add a BurnTimer.
-			// Random 5% chance per tick (20 ticks/sec -> 1 hit/sec avg)
-			if p.Weapon == "Magma Fruit" && dist < 8.0 {
-				if math.Sin(float64(now)) > 0.95 { // Simple random throttle
-					mob.Health -= 5
-					// Don't kill implicitly here without rewards?
-					// Let's just reduce health. If it dies, the next handleMobDamage check will fail?
-					// Or just let it be 1 HP for player to finish.
-					if mob.Health < 1 {
-						mob.Health = 1
+					// Shadow Stealth (Feature 10)
+					if p.Weapon == "Shadow Fruit" { // Renamed Ghost->Shadow in Roster
+						// Detection radius reduced
+						if dist > 5.0 {
+							continue // Ignore player unless very close
+						}
+					}
+
+					if dist < minDist {
+						minDist = dist
+						closestPlayer = p
 					}
 				}
-			}
-
-			// Shadow Stealth (Feature 10)
-			if p.Weapon == "Shadow Fruit" { // Renamed Ghost->Shadow in Roster
-				// Detection radius reduced
-				if dist > 5.0 {
-					continue // Ignore player unless very close
-				}
-			}
-
-			if dist < minDist {
-				minDist = dist
-				closestPlayer = p
 			}
 		}
 		mm.hub.mutex.Unlock()
