@@ -5,6 +5,8 @@ import (
 	"math"
 	"sync"
 	"time"
+
+	"github.com/gofiber/websocket/v2"
 )
 
 type MobState string
@@ -237,19 +239,16 @@ func (mm *MobManager) Update(deltaTime float64) {
 							// case msg := <-h.broadcast: _ = msg
 							// This is a bug in Hub.run! It drops the message!
 
-							// We need to fix Hub.run to actually broadcast.
-							// For now, let's manually iterate clients here, BUT we need hub.mutex for that.
-							// We have mm.mutex locked. Can we lock hub.mutex?
-							// Order: Hub.run locks hub.mutex -> Calls MobManager.Update? NO.
-							// Hub.run calls MobManager.Update in `case <-mobTicker.C`.
-							// Does it hold hub.mutex? NO.
-							// So it is SAFE to lock hub.mutex here.
-
 							mm.hub.mutex.Lock()
+							clientsCopy := make([]*websocket.Conn, 0, len(mm.hub.clients))
 							for c := range mm.hub.clients {
-								c.WriteMessage(1, castMsg) // 1 = TextMessage
+								clientsCopy = append(clientsCopy, c)
 							}
 							mm.hub.mutex.Unlock()
+
+							for _, c := range clientsCopy {
+								c.WriteMessage(1, castMsg) // 1 = TextMessage
+							}
 						}
 					}
 				}
