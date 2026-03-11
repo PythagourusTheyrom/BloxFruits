@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -833,8 +835,8 @@ func main() {
 			hub.players[guestID] = p
 		}
 
-		// Generate Token (Simple UUID or just ID for this demo)
-		token := guestID // In real app, use JWT. Here we use ID as token key in hub.tokens
+		// Generate Secure Token
+		token := generateSecureToken()
 		hub.tokens[token] = guestID
 		hub.mutex.Unlock()
 
@@ -860,8 +862,8 @@ func main() {
 			return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
 		}
 
-		// Generate simple token
-		token := generateID() // Reuse simple ID gen for token
+		// Generate secure token
+		token := generateSecureToken()
 		hub.mutex.Lock()
 		hub.tokens[token] = user.ID
 		// Pre-load player data into hub so it's ready for WS connection?
@@ -955,6 +957,14 @@ func createQuestUpdateMsg(p *Player) []byte {
 
 func generateID() string {
 	return time.Now().Format("150405.000000") // Simple ID
+}
+
+func generateSecureToken() string {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return generateID() // Fallback to semi-random ID if crypto/rand fails
+	}
+	return hex.EncodeToString(b)
 }
 
 func getWeaponDamage(w string) int {
