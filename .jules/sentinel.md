@@ -1,0 +1,4 @@
+## 2024-05-20 - [Critical DOM XSS in Chat Interface]
+**Vulnerability:** A critical Cross-Site Scripting (XSS) vulnerability was found in the frontend chat system (`client/js/script.js`). The chat logic dynamically concatenated user IDs and message content into `innerHTML` to display messages, allowing arbitrary JavaScript execution via malicious input.
+**Learning:** The application heavily relies on raw DOM manipulation without a modern reactive framework (like React or Vue) that would otherwise automatically sanitize input. This pattern creates a high risk for XSS anywhere user input is reflected in the UI.
+**Prevention:** Strict enforcement of safe DOM APIs (`document.createElement`, `textContent`, `appendChild`) is required over `innerHTML`. Any future chat or UI elements that render user-provided data must be validated or safely escaped.

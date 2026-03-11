@@ -692,7 +692,15 @@ const originalOnMessage = (event) => {
             line.style.marginBottom = "2px";
             // Colorize name?
             const senderColor = msg.role === 'owner' ? 'gold' : (msg.role === 'admin' ? 'red' : 'cyan');
-            line.innerHTML = `<span style="color:${senderColor}; font-weight:bold;">${msg.id}:</span> ${msg.item}`;
+
+            const nameSpan = document.createElement('span');
+            nameSpan.style.color = senderColor;
+            nameSpan.style.fontWeight = 'bold';
+            nameSpan.textContent = `${msg.id}: `;
+
+            line.appendChild(nameSpan);
+            line.appendChild(document.createTextNode(msg.item));
+
             chatBox.appendChild(line);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
