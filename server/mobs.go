@@ -226,30 +226,11 @@ func (mm *MobManager) Update(deltaTime float64) {
 							})
 
 							// Broadcast to all clients (simplified, ideally only room)
-							// mm.hub.broadcast <- castMsg // This might lock if channel is full?
-							// Better to iterate clients and send, or use a non-blocking send.
-							// Since we are inside MobManager mutex, we must accept that sending might be slow?
-							// Actually hub.broadcast is a channel read by hub.run loop.
-							// BUT: sending to channel while holding mutex is fine IF the receiver doesn't need this mutex to read.
-							// Hub.run reads broadcast, then does ... nothing with mutex usually?
-							// Hub.run case msg := <-h.broadcast: _ = msg.
-							// Wait, the broadcast handler in hub.run does NOTHING currently:
-							// case msg := <-h.broadcast: _ = msg
-							// This is a bug in Hub.run! It drops the message!
-
-							// We need to fix Hub.run to actually broadcast.
-							// For now, let's manually iterate clients here, BUT we need hub.mutex for that.
-							// We have mm.mutex locked. Can we lock hub.mutex?
-							// Order: Hub.run locks hub.mutex -> Calls MobManager.Update? NO.
-							// Hub.run calls MobManager.Update in `case <-mobTicker.C`.
-							// Does it hold hub.mutex? NO.
-							// So it is SAFE to lock hub.mutex here.
-
-							mm.hub.mutex.Lock()
-							for c := range mm.hub.clients {
-								c.WriteMessage(1, castMsg) // 1 = TextMessage
-							}
-							mm.hub.mutex.Unlock()
+							// Send in a goroutine to prevent deadlocking the Hub.run loop,
+							// which handles h.broadcast and also calls MobManager.Update.
+							go func() {
+								mm.hub.broadcast <- castMsg
+							}()
 						}
 					}
 				}
