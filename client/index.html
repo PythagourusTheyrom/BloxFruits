@@ -33,7 +33,7 @@
             style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.5); color: white; padding: 5px; font-family: monospace; font-size: 14px; pointer-events: auto;">
             <!-- Messages go here -->
         </div>
-        <input type="text" id="chat-input" placeholder="Press Enter to Chat..."
+        <input type="text" id="chat-input" placeholder="Press Enter to Chat..." aria-label="Chat message"
             style="background: rgba(0,0,0,0.7); color: white; border: 1px solid #444; padding: 5px; pointer-events: auto;">
     </div>
 
@@ -58,11 +58,11 @@
                     <div class="auth-content">
                         <div class="input-group">
                             <i class="icon-user"></i>
-                            <input type="text" id="username-input" placeholder="Username" maxlength="20">
+                            <input type="text" id="username-input" placeholder="Username" aria-label="Username" maxlength="20">
                         </div>
                         <div class="input-group">
                             <i class="icon-lock"></i>
-                            <input type="password" id="password-input" placeholder="Password" maxlength="50">
+                            <input type="password" id="password-input" placeholder="Password" aria-label="Password" maxlength="50">
                         </div>
 
                         <button id="auth-btn" class="neon-btn primary" onclick="handleAuth()">
@@ -113,7 +113,7 @@
         <div id="join-modal" class="hidden modal-overlay">
             <div class="glass-panel modal-panel">
                 <h3>Enter Lobby ID</h3>
-                <input type="text" id="lobby-id-input" placeholder="Room ID">
+                <input type="text" id="lobby-id-input" placeholder="Room ID" aria-label="Room ID">
                 <div class="modal-buttons">
                     <button onclick="confirmJoinLobby()">Join</button>
                     <button onclick="closeModal()">Cancel</button>
@@ -188,7 +188,7 @@
         <div id="shop-ui" class="hidden">
             <div class="glass-panel shop-panel">
                 <h2>WEAPON SHOP</h2>
-                <button class="close-btn" onclick="closeShop()">X</button>
+                <button class="close-btn" onclick="closeShop()" aria-label="Close Shop">X</button>
 
                 <div class="shop-grid">
                     <div class="shop-item" onclick="buyItem('katana')">
@@ -243,10 +243,10 @@
     <div id="admin-panel" class="hidden">
         <div class="glass-panel admin-panel" style="width: 400px; position: fixed; top: 50px; right: 50px;">
             <h3>ADMIN CONTROL</h3>
-            <button class="close-btn" onclick="toggleAdminPanel()">X</button>
+            <button class="close-btn" onclick="toggleAdminPanel()" aria-label="Close Admin Panel">X</button>
 
             <div class="admin-controls">
-                <input type="text" id="admin-target" placeholder="Target Player ID"
+                <input type="text" id="admin-target" placeholder="Target Player ID" aria-label="Target Player ID"
                     style="width: 100%; margin-bottom: 10px; color: black;">
 
                 <h4>Actions</h4>
@@ -257,7 +257,7 @@
 
                 <h4>Grant Item</h4>
                 <div class="action-row">
-                    <input type="text" id="admin-item" placeholder="Item Name (e.g. Dragon Fruit)"
+                    <input type="text" id="admin-item" placeholder="Item Name (e.g. Dragon Fruit)" aria-label="Item Name"
                         style="width: 60%; color: black;">
                     <button onclick="adminAction('grant_item')">GRANT</button>
                 </div>
