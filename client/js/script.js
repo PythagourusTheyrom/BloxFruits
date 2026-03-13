@@ -25,7 +25,10 @@ import { ParticleSystem } from './particles.js';
 
 function log(msg) {
     const d = document.getElementById('debug-console');
-    if (d) d.innerHTML += msg + "<br>";
+    if (d) {
+        d.appendChild(document.createTextNode(msg));
+        d.appendChild(document.createElement('br'));
+    }
     console.log(msg);
 }
 window.onerror = function (msg, url, line) {
@@ -92,7 +95,7 @@ window.switchAuth = function (mode) {
 
     // Update Button Text
     const btn = document.getElementById('auth-btn');
-    if (btn) btn.innerHTML = mode === 'login' ? 'LOGIN TO PLAY' : 'REGISTER & PLAY';
+    if (btn) btn.textContent = mode === 'login' ? 'LOGIN TO PLAY' : 'REGISTER & PLAY';
 
     // Clear Messages
     const msg = document.getElementById('auth-msg');
@@ -156,11 +159,9 @@ window.handleAuth = async function () {
         }
 
         let baseUrl = "";
-        if (window.location.hostname.includes('github.io') || window.location.hostname === 'blozfruits.io') {
-            baseUrl = "https://blozfruits.io";
-        }
 
         const endpoint = baseUrl + (authMode === 'login' ? '/api/login' : '/api/register');
+        const endpoint = (authMode === 'login' ? '/api/login' : '/api/register');
         const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -229,11 +230,9 @@ window.handleGuestAuth = async function () {
         }
 
         let baseUrl = "";
-        if (window.location.hostname.includes('github.io') || window.location.hostname.includes('blozfruits.io')) {
-            baseUrl = "https://blozfruits.io";
-        }
 
         const res = await fetch(baseUrl + '/api/guest', { method: 'POST' });
+        const res = await fetch('/api/guest', { method: 'POST' });
         const data = await res.json();
 
         if (!res.ok) {
@@ -619,11 +618,6 @@ function setupWebSocket(token, roomID) {
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     let host = window.location.host;
 
-    // If hosted on GitHub Pages (production client), point to Render backend
-    if (window.location.hostname.includes('github.io') || window.location.hostname === 'blozfruits.io') {
-        host = 'blozfruits.io'; // Custom Domain
-    }
-
     // Append room to query string
     socket = new WebSocket(`${protocol}://${host}/ws?token=${encodeURIComponent(token)}&room=${encodeURIComponent(roomID)}`);
 
@@ -700,6 +694,10 @@ const originalOnMessage = (event) => {
 
             line.appendChild(nameSpan);
             line.appendChild(document.createTextNode(msg.item));
+            nameSpan.textContent = `${msg.id}:`;
+
+            line.appendChild(nameSpan);
+            line.appendChild(document.createTextNode(` ${msg.item}`));
 
             chatBox.appendChild(line);
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -872,7 +870,7 @@ function updatePlayerList(players) {
     const list = document.getElementById('player-list-content');
     if (!list) return;
 
-    list.innerHTML = "";
+    list.replaceChildren();
 
     // Sort by Bounty? Or just list
     const sortedIds = Object.keys(players).sort((a, b) => (players[b].bounty || 0) - (players[a].bounty || 0));
@@ -1212,7 +1210,7 @@ function updateSecondaryUI() {
     // Update Hotbar
     const hotbar = document.getElementById('hotbar-container');
     if (hotbar) {
-        hotbar.innerHTML = '';
+        hotbar.replaceChildren();
         (gameState.player.inventory || []).forEach(item => {
             const slot = document.createElement('div');
             slot.className = 'hotbar-slot';

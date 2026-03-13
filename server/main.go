@@ -530,7 +530,13 @@ func main() {
 					// Range Validation
 					hub.MobManager.mutex.Lock()
 					if mob, ok := hub.MobManager.Mobs[mobID]; ok {
-						dist := math.Sqrt(math.Pow(mob.X-player.X, 2) + math.Pow(mob.Z-player.Z, 2))
+						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
+						dx := mob.X - player.X
+						dz := mob.Z - player.Z
+						dx := mob.X - player.X
+						dz := mob.Z - player.Z
+						// Use direct multiplication instead of math.Pow for performance
+						dist := math.Sqrt(dx*dx + dz*dz)
 						// Weapon Range
 						maxRange := 15.0 // Melee/Sword
 						if player.Weapon == "bazooka" || player.Weapon == "slingshot" {
@@ -565,7 +571,13 @@ func main() {
 					hub.mutex.Lock()
 					victim, ok := hub.players[victimID]
 					if ok {
-						dist := math.Sqrt(math.Pow(victim.X-player.X, 2) + math.Pow(victim.Z-player.Z, 2))
+						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
+						dx := victim.X - player.X
+						dz := victim.Z - player.Z
+						dx := victim.X - player.X
+						dz := victim.Z - player.Z
+						// Use direct multiplication instead of math.Pow for performance
+						dist := math.Sqrt(dx*dx + dz*dz)
 						maxRange := 15.0
 						if player.Weapon == "bazooka" || player.Weapon == "slingshot" {
 							maxRange = 80.0
@@ -594,7 +606,13 @@ func main() {
 					// Sanity Check: Max 100 distance for any ability for now
 					hub.MobManager.mutex.Lock()
 					if mob, ok := hub.MobManager.Mobs[mobID]; ok {
-						dist := math.Sqrt(math.Pow(mob.X-player.X, 2) + math.Pow(mob.Z-player.Z, 2))
+						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
+						dx := mob.X - player.X
+						dz := mob.Z - player.Z
+						dx := mob.X - player.X
+						dz := mob.Z - player.Z
+						// Use direct multiplication instead of math.Pow for performance
+						dist := math.Sqrt(dx*dx + dz*dz)
 						hub.MobManager.mutex.Unlock()
 						// Max Range needed.
 						if dist > 150.0 { // Generous range for now
@@ -742,7 +760,13 @@ func main() {
 						now := time.Now().UnixMilli()
 						pX, pZ := player.X, player.Z
 						for _, mob := range hub.MobManager.Mobs {
-							dist := math.Sqrt(math.Pow(mob.X-pX, 2) + math.Pow(mob.Z-pZ, 2))
+							// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
+							dx := mob.X - pX
+							dz := mob.Z - pZ
+							dx := mob.X - pX
+							dz := mob.Z - pZ
+							// Use direct multiplication instead of math.Pow for performance
+							dist := math.Sqrt(dx*dx + dz*dz)
 							if dist <= hakiRange {
 								mob.State = StateStunned
 								mob.StunEnd = now + int64(stunDuration*1000)
@@ -881,7 +905,7 @@ func main() {
 		}
 
 		// Generate secure token
-		token := generateSecureToken()
+		_ = generateSecureToken()
 		tokenBytes := make([]byte, 32)
 		if _, err := rand.Read(tokenBytes); err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Failed to generate token"})
