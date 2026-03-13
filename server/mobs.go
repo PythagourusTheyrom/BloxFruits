@@ -441,6 +441,8 @@ func (mm *MobManager) Update(deltaTime float64) {
 	}
 }
 
+// distance calculates the Euclidean distance between two points.
+// Uses direct multiplication instead of math.Pow for performance to avoid function call overhead during tick updates.
 func distance(x1, z1, x2, z2 float64) float64 {
 	// ⚡ Bolt Optimization: Using direct multiplication instead of math.Pow(..., 2)
 	// for distance calculations. This significantly reduces cpu overhead during mob AI ticks
