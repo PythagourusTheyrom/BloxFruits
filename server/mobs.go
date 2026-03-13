@@ -157,13 +157,16 @@ func (mm *MobManager) Update(deltaTime float64) {
 			for dz := -1; dz <= 1; dz++ {
 				key := cellKey{mobCx + dx, mobCz + dz}
 				for _, p := range grid[key] {
-					dist := distance(mob.X, mob.Z, p.X, p.Z)
+					// ⚡ Bolt Optimization: Replacing distance() call with inline x*x distance calc
+					pdx := mob.X - p.X
+					pdz := mob.Z - p.Z
+					distSq := pdx*pdx + pdz*pdz
 
 					// Magma Aura Passive (Feature 6)
 					// Apply tick damage every frame? Too fast.
 					// Let's rely on randomness to throttle or add a BurnTimer.
 					// Random 5% chance per tick (20 ticks/sec -> 1 hit/sec avg)
-					if p.Weapon == "Magma Fruit" && dist < 8.0 {
+					if p.Weapon == "Magma Fruit" && distSq < 64.0 { // 8.0^2
 						if math.Sin(float64(now)) > 0.95 { // Simple random throttle
 							mob.Health -= 5
 							// Don't kill implicitly here without rewards?
@@ -178,13 +181,13 @@ func (mm *MobManager) Update(deltaTime float64) {
 					// Shadow Stealth (Feature 10)
 					if p.Weapon == "Shadow Fruit" { // Renamed Ghost->Shadow in Roster
 						// Detection radius reduced
-						if dist > 5.0 {
+						if distSq > 25.0 { // 5.0^2
 							continue // Ignore player unless very close
 						}
 					}
 
-					if dist < minDist {
-						minDist = dist
+					if distSq < minDist*minDist {
+						minDist = math.Sqrt(distSq)
 						closestPlayer = p
 					}
 				}
