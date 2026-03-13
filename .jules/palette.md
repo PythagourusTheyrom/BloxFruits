@@ -1,0 +1,3 @@
+## 2024-05-18 - Added ARIA labels to form inputs with only placeholders
+**Learning:** Found an accessibility issue pattern where inputs used for authentication (username, password), lobby connection, and admin commands only rely on `placeholder` attributes for context, making them difficult for screen readers. Using `aria-label`s on elements like `X` close buttons and custom `input` groups provides a non-intrusive way to ensure complete accessibility without altering visual design.
+**Action:** In custom input groups relying on icons or placeholder text, ensure `aria-label` attributes are consistently applied.
