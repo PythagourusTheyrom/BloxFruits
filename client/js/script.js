@@ -690,6 +690,10 @@ const originalOnMessage = (event) => {
             const nameSpan = document.createElement('span');
             nameSpan.style.color = senderColor;
             nameSpan.style.fontWeight = 'bold';
+            nameSpan.textContent = `${msg.id}: `;
+
+            line.appendChild(nameSpan);
+            line.appendChild(document.createTextNode(msg.item));
             nameSpan.textContent = `${msg.id}:`;
 
             line.appendChild(nameSpan);
