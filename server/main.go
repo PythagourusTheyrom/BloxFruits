@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"sync"
 	"time"
@@ -533,17 +532,16 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
-						dist := math.Sqrt(dx*dx + dz*dz)
+						distSq := dx*dx + dz*dz
 						// Weapon Range
 						maxRange := 15.0 // Melee/Sword
 						if player.Weapon == "bazooka" || player.Weapon == "slingshot" {
 							maxRange = 80.0
 						}
 
-						if dist > maxRange {
+						// ⚡ Bolt Optimization: Replacing math.Sqrt for distance comparisons with squared distance checks to save CPU cycles
+						if distSq > (maxRange * maxRange) {
 							hub.MobManager.mutex.Unlock()
 							continue // Out of range
 						}
@@ -574,15 +572,14 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := victim.X - player.X
 						dz := victim.Z - player.Z
-						dx := victim.X - player.X
-						dz := victim.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
-						dist := math.Sqrt(dx*dx + dz*dz)
+						distSq := dx*dx + dz*dz
 						maxRange := 15.0
 						if player.Weapon == "bazooka" || player.Weapon == "slingshot" {
 							maxRange = 80.0
 						}
-						if dist > maxRange {
+						// ⚡ Bolt Optimization: Replacing math.Sqrt for distance comparisons with squared distance checks to save CPU cycles
+						if distSq > (maxRange * maxRange) {
 							hub.mutex.Unlock()
 							continue
 						}
@@ -609,13 +606,12 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
-						dist := math.Sqrt(dx*dx + dz*dz)
+						distSq := dx*dx + dz*dz
 						hub.MobManager.mutex.Unlock()
 						// Max Range needed.
-						if dist > 150.0 { // Generous range for now
+						// ⚡ Bolt Optimization: Replacing math.Sqrt for distance comparisons with squared distance checks to save CPU cycles
+						if distSq > (150.0 * 150.0) { // Generous range for now
 							continue
 						}
 					} else {
@@ -763,11 +759,10 @@ func main() {
 							// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 							dx := mob.X - pX
 							dz := mob.Z - pZ
-							dx := mob.X - pX
-							dz := mob.Z - pZ
 							// Use direct multiplication instead of math.Pow for performance
-							dist := math.Sqrt(dx*dx + dz*dz)
-							if dist <= hakiRange {
+							distSq := dx*dx + dz*dz
+							// ⚡ Bolt Optimization: Replacing math.Sqrt for distance comparisons with squared distance checks to save CPU cycles
+							if distSq <= (hakiRange * hakiRange) {
 								mob.State = StateStunned
 								mob.StunEnd = now + int64(stunDuration*1000)
 							}
