@@ -158,9 +158,6 @@ window.handleAuth = async function () {
             return;
         }
 
-        let baseUrl = "";
-
-        const endpoint = baseUrl + (authMode === 'login' ? '/api/login' : '/api/register');
         const endpoint = (authMode === 'login' ? '/api/login' : '/api/register');
         const res = await fetch(endpoint, {
             method: 'POST',
@@ -229,9 +226,6 @@ window.handleGuestAuth = async function () {
             return;
         }
 
-        let baseUrl = "";
-
-        const res = await fetch(baseUrl + '/api/guest', { method: 'POST' });
         const res = await fetch('/api/guest', { method: 'POST' });
         const data = await res.json();
 
