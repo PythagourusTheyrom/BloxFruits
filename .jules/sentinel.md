@@ -6,3 +6,7 @@
 **Vulnerability:** The application was using `innerHTML` to render dynamic user input, such as chat messages, directly into the DOM. This allowed for Cross-Site Scripting (XSS) where malicious users could inject executable JavaScript payloads.
 **Learning:** Chat features and any user-provided content that is broadcasted or displayed should never use `innerHTML`. Using `innerHTML` bypassing native DOM escaping mechanisms.
 **Prevention:** Always use safe DOM manipulation APIs like `document.createElement` and `textContent` or `innerText` when updating the UI with user input, instead of `innerHTML`.
+## 2024-05-24 - [HIGH] Add rate limiting to authentication endpoints
+**Vulnerability:** Sensitive authentication endpoints (`/api/register`, `/api/login`, `/api/guest`) lacked rate limiting.
+**Learning:** This missing protection could allow brute-force attacks or Denial of Service (DoS) by spamming these endpoints, bypassing authentication mechanisms. Rate limits for sensitive endpoints should be implemented by default to protect user security and application stability.
+**Prevention:** Always implement a rate limiter on endpoints that involve user authentication, token generation, or sensitive actions. Use standard middleware, such as `github.com/gofiber/fiber/v2/middleware/limiter`, to easily achieve this.
