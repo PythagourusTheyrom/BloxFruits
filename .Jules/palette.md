@@ -1,0 +1,3 @@
+## 2023-10-25 - [App-wide Focus & ARIA Patterns]
+**Learning:** This application relies heavily on absolute-positioned UI overlays above a Three.js canvas (e.g., Shop, Admin panels). These custom panels consistently lack keyboard focus indicators (`focus-visible`) and suffer from duplicated close buttons and malformed input tags that break screen reader flow. Furthermore, dynamic text updates (like auth errors) are missing `aria-live` regions, rendering them invisible to screen readers.
+**Action:** Always verify custom modal/panel overlays in this specific app for focus states and ARIA live regions when they dynamically inject content above the canvas, as the default styling and structure resets completely omit these a11y primitives.
