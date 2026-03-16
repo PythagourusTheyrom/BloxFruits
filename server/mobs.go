@@ -157,13 +157,13 @@ func (mm *MobManager) Update(deltaTime float64) {
 			for dz := -1; dz <= 1; dz++ {
 				key := cellKey{mobCx + dx, mobCz + dz}
 				for _, p := range grid[key] {
-					dist := distance(mob.X, mob.Z, p.X, p.Z)
+					distSq := distanceSq(mob.X, mob.Z, p.X, p.Z)
 
 					// Magma Aura Passive (Feature 6)
 					// Apply tick damage every frame? Too fast.
 					// Let's rely on randomness to throttle or add a BurnTimer.
 					// Random 5% chance per tick (20 ticks/sec -> 1 hit/sec avg)
-					if p.Weapon == "Magma Fruit" && dist < 8.0 {
+					if p.Weapon == "Magma Fruit" && distSq < 64.0 {
 						if math.Sin(float64(now)) > 0.95 { // Simple random throttle
 							mob.Health -= 5
 							// Don't kill implicitly here without rewards?
@@ -178,13 +178,13 @@ func (mm *MobManager) Update(deltaTime float64) {
 					// Shadow Stealth (Feature 10)
 					if p.Weapon == "Shadow Fruit" { // Renamed Ghost->Shadow in Roster
 						// Detection radius reduced
-						if dist > 5.0 {
+						if distSq > 25.0 {
 							continue // Ignore player unless very close
 						}
 					}
 
-					if dist < minDist {
-						minDist = dist
+					if distSq < minDist*minDist {
+						minDist = math.Sqrt(distSq)
 						closestPlayer = p
 					}
 				}
@@ -450,4 +450,12 @@ func distance(x1, z1, x2, z2 float64) float64 {
 	dx := x2 - x1
 	dz := z2 - z1
 	return math.Sqrt(dx*dx + dz*dz)
+}
+
+// distanceSq calculates the squared distance between two points.
+// Useful for distance comparisons without the overhead of math.Sqrt.
+func distanceSq(x1, z1, x2, z2 float64) float64 {
+	dx := x2 - x1
+	dz := z2 - z1
+	return dx*dx + dz*dz
 }
