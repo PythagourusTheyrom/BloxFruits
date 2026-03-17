@@ -206,7 +206,6 @@ export class CharacterController {
                 requestAnimationFrame(animate);
             }
         }
-    }
 
         // 5. Physics Update
         this.velocity.y -= this.gravity * deltaTime;
