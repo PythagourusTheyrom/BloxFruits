@@ -6,3 +6,7 @@
 **Vulnerability:** The application was using `innerHTML` to render dynamic user input, such as chat messages, directly into the DOM. This allowed for Cross-Site Scripting (XSS) where malicious users could inject executable JavaScript payloads.
 **Learning:** Chat features and any user-provided content that is broadcasted or displayed should never use `innerHTML`. Using `innerHTML` bypassing native DOM escaping mechanisms.
 **Prevention:** Always use safe DOM manipulation APIs like `document.createElement` and `textContent` or `innerText` when updating the UI with user input, instead of `innerHTML`.
+## 2024-03-17 - [CRITICAL] Fix weak token generation fallback
+**Vulnerability:** In `server/main.go`, `generateSecureToken()` fell back to a predictable, timestamp-based ID (`generateID()`) if `crypto/rand.Read()` failed. This could result in predictable tokens being used for sensitive operations like user session tokens.
+**Learning:** Security token generation should never fall back to non-cryptographically secure pseudo-random mechanisms. If secure random bytes cannot be obtained, the application must fail securely and deny the operation.
+**Prevention:** Always handle crypto errors gracefully by returning an error to the caller, and never fallback to insecure random or time-based generators for tokens, IDs, or keys meant to be unpredictable.

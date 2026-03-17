@@ -9,11 +9,14 @@ func TestGenerateSecureToken(t *testing.T) {
 	numTokens := 1000
 
 	for i := 0; i < numTokens; i++ {
-		token := generateSecureToken()
+		token, err := generateSecureToken()
+		if err != nil {
+			t.Fatalf("Failed to generate secure token: %v", err)
+		}
 
-		// Check length (16 bytes = 32 hex chars)
-		if len(token) != 32 {
-			t.Errorf("Expected token length 32, got %d", len(token))
+		// Check length (32 bytes = 64 hex chars)
+		if len(token) != 64 {
+			t.Errorf("Expected token length 64, got %d", len(token))
 		}
 
 		// Check uniqueness
