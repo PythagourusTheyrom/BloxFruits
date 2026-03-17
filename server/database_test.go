@@ -14,44 +14,44 @@ func TestRegisterUser_OwnerRole(t *testing.T) {
 	defer os.Unsetenv("OWNER_PASSWORD")
 
 	tests := []struct {
-		name          string
-		envPassword   string
-		registerUser  string
-		registerPass  string
-		expectErr     bool
-		expectedRole  string
+		name         string
+		envPassword  string
+		registerUser string
+		registerPass string
+		expectErr    bool
+		expectedRole string
 	}{
 		{
-			name:          "Owner creation fails if OWNER_PASSWORD is not set",
-			envPassword:   "",
-			registerUser:  "Owner",
-			registerPass:  "testpass",
-			expectErr:     true,
-			expectedRole:  "",
+			name:         "Owner creation fails if OWNER_PASSWORD is not set",
+			envPassword:  "",
+			registerUser: "Owner",
+			registerPass: "testpass",
+			expectErr:    true,
+			expectedRole: "",
 		},
 		{
-			name:          "Owner creation fails with mismatched password",
-			envPassword:   "correcthorse",
-			registerUser:  "Owner",
-			registerPass:  "wrongpass",
-			expectErr:     true,
-			expectedRole:  "",
+			name:         "Owner creation fails with mismatched password",
+			envPassword:  "correcthorse",
+			registerUser: "Owner",
+			registerPass: "wrongpass",
+			expectErr:    true,
+			expectedRole: "",
 		},
 		{
-			name:          "Owner creation succeeds with matching password",
-			envPassword:   "correcthorse",
-			registerUser:  "Owner",
-			registerPass:  "correcthorse",
-			expectErr:     false,
-			expectedRole:  "owner",
+			name:         "Owner creation succeeds with matching password",
+			envPassword:  "correcthorse",
+			registerUser: "Owner",
+			registerPass: "correcthorse",
+			expectErr:    false,
+			expectedRole: "owner",
 		},
 		{
-			name:          "Regular user creation succeeds regardless of OWNER_PASSWORD",
-			envPassword:   "secret",
-			registerUser:  "RegularUser",
-			registerPass:  "testpass",
-			expectErr:     false,
-			expectedRole:  "user",
+			name:         "Regular user creation succeeds regardless of OWNER_PASSWORD",
+			envPassword:  "secret",
+			registerUser: "RegularUser",
+			registerPass: "testpass",
+			expectErr:    false,
+			expectedRole: "user",
 		},
 	}
 
