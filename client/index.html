@@ -55,17 +55,17 @@
                         <button id="tab-register" class="auth-tab" onclick="switchAuth('register')">REGISTER</button>
                     </div>
 
-                    <div class="auth-content">
+                    <form id="auth-form" class="auth-content" onsubmit="event.preventDefault(); handleAuth();">
                         <div class="input-group">
                             <i class="icon-user"></i>
-                            <input type="text" id="username-input" placeholder="Username" aria-label="Username" maxlength="20">
+                            <input type="text" id="username-input" placeholder="Username" aria-label="Username" maxlength="20" required>
                         </div>
                         <div class="input-group">
                             <i class="icon-lock"></i>
-                            <input type="password" id="password-input" placeholder="Password" aria-label="Password" maxlength="50">
+                            <input type="password" id="password-input" placeholder="Password" aria-label="Password" maxlength="50" required>
                         </div>
 
-                        <button id="auth-btn" class="neon-btn primary" onclick="handleAuth()">
+                        <button type="submit" id="auth-btn" class="neon-btn primary">
                             LOGIN TO PLAY
                         </button>
 
@@ -73,10 +73,10 @@
                             <span>OR</span>
                         </div>
 
-                        <button class="neon-btn secondary guest-btn" onclick="handleGuestAuth()">
+                        <button type="button" class="neon-btn secondary guest-btn" onclick="handleGuestAuth()">
                             PLAY AS GUEST
                         </button>
-                    </div>
+                    </form>
 
                     <div id="loading-spinner" class="spinner hidden"></div>
                     <p id="auth-msg" class="status-msg"></p>
@@ -189,7 +189,6 @@
             <div class="glass-panel shop-panel">
                 <h2>WEAPON SHOP</h2>
                 <button class="close-btn" aria-label="Close Shop" onclick="closeShop()">X</button>
-                <button class="close-btn" onclick="closeShop()" aria-label="Close Shop">X</button>
 
                 <div class="shop-grid">
                     <div class="shop-item" onclick="buyItem('katana')">
@@ -245,7 +244,6 @@
         <div class="glass-panel admin-panel" style="width: 400px; position: fixed; top: 50px; right: 50px;">
             <h3>ADMIN CONTROL</h3>
             <button class="close-btn" aria-label="Close Admin Panel" onclick="toggleAdminPanel()">X</button>
-            <button class="close-btn" onclick="toggleAdminPanel()" aria-label="Close Admin Panel">X</button>
 
             <div class="admin-controls">
                 <input type="text" id="admin-target" placeholder="Target Player ID" aria-label="Target Player ID"
@@ -260,7 +258,6 @@
                 <h4>Grant Item</h4>
                 <div class="action-row">
                     <input type="text" id="admin-item" placeholder="Item Name (e.g. Dragon Fruit)" aria-label="Item Name to Grant"
-                    <input type="text" id="admin-item" placeholder="Item Name (e.g. Dragon Fruit)" aria-label="Item Name"
                         style="width: 60%; color: black;">
                     <button onclick="adminAction('grant_item')">GRANT</button>
                 </div>
