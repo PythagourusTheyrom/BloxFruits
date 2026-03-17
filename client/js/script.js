@@ -62,7 +62,11 @@ let gameState = {
         health: 100,
         maxHealth: 100,
         energy: 100,
-        maxEnergy: 100
+        maxEnergy: 100,
+        statMelee: 1,
+        statDefense: 1,
+        statSword: 1,
+        statFruit: 1
     }
 };
 
@@ -114,6 +118,16 @@ function updateUI() {
     if (enBar) enBar.style.width = (p.energy / p.maxEnergy * 100) + "%";
     const enText = document.getElementById('energy-text');
     if (enText) enText.innerText = `Energy ${Math.floor(p.energy)}/${p.maxEnergy}`;
+
+    // Character Stats
+    const statMelee = document.getElementById('stat-melee');
+    if (statMelee) statMelee.innerText = p.statMelee || 1;
+    const statDefense = document.getElementById('stat-defense');
+    if (statDefense) statDefense.innerText = p.statDefense || 1;
+    const statSword = document.getElementById('stat-sword');
+    if (statSword) statSword.innerText = p.statSword || 1;
+    const statFruit = document.getElementById('stat-fruit');
+    if (statFruit) statFruit.innerText = p.statFruit || 1;
 
     const mText = document.getElementById('money-display'); // Fixed ID
     if (mText) mText.innerText = "$ " + p.money;
