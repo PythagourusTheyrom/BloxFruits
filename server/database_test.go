@@ -83,3 +83,20 @@ func TestRegisterUser_OwnerRole(t *testing.T) {
 		})
 	}
 }
+
+func TestRegisterUser_DatabaseError(t *testing.T) {
+	initDB()
+	defer ResetDB()
+
+	// Create a user successfully
+	err := RegisterUser("DuplicateUser", "password123")
+	if err != nil {
+		t.Fatalf("expected successful registration, got error: %v", err)
+	}
+
+	// Attempt to register the same user again to trigger a database error
+	err = RegisterUser("DuplicateUser", "newpassword")
+	if err == nil {
+		t.Fatalf("expected a database error due to UNIQUE constraint violation, got nil")
+	}
+}
