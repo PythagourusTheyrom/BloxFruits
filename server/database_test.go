@@ -83,3 +83,49 @@ func TestRegisterUser_OwnerRole(t *testing.T) {
 		})
 	}
 }
+
+func TestSaveUser(t *testing.T) {
+	// Initialize a temporary database for testing
+	initDB()
+	defer ResetDB()
+
+	// 1. Setup: Register a dummy user
+	testUser := "SaveTestUser"
+	testPass := "password123"
+	err := RegisterUser(testUser, testPass)
+	if err != nil {
+		t.Fatalf("failed to register user: %v", err)
+	}
+
+	// 2. Load the initial user
+	player, err := LoadUser(testUser)
+	if err != nil {
+		t.Fatalf("failed to load user: %v", err)
+	}
+
+	// 3. Modify the user's data
+	newHealth := 50
+	newX := 15.5
+	player.Health = newHealth
+	player.X = newX
+
+	// 4. Save the modified user
+	err = SaveUser(player)
+	if err != nil {
+		t.Fatalf("failed to save user: %v", err)
+	}
+
+	// 5. Verify the changes were saved
+	updatedPlayer, err := LoadUser(testUser)
+	if err != nil {
+		t.Fatalf("failed to load updated user: %v", err)
+	}
+
+	if updatedPlayer.Health != newHealth {
+		t.Errorf("expected health %d, got %d", newHealth, updatedPlayer.Health)
+	}
+
+	if updatedPlayer.X != newX {
+		t.Errorf("expected X coordinate %f, got %f", newX, updatedPlayer.X)
+	}
+}
