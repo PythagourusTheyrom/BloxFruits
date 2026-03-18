@@ -64,7 +64,6 @@ export class BoatSystem {
                 // Attach player visually (simplified)
                 this.playerMesh.visible = false; // Hide player, assume they are "in" the boat
                 // Or attach relative
-                console.log("Driving Boat!");
                 break;
             }
         }
