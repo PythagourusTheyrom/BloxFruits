@@ -1,3 +1,4 @@
+export class ZoneSystem {
 constructor(scene) {
     this.scene = scene;
     this.zones = [];

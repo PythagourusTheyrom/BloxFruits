@@ -53,7 +53,7 @@ if (isOfflineMode) {
 
 
 // Game State
-let gameState = {
+export let gameState = {
     myID: null,
     room: null, // New field for Lobby
     players: {},
@@ -102,7 +102,7 @@ window.switchAuth = function (mode) {
     if (msg) msg.innerText = "";
 }
 
-function updateUI() {
+export function updateUI() {
     const p = gameState.player;
     const hpBar = document.getElementById('hp-bar');
     if (hpBar) hpBar.style.width = (p.health / p.maxHealth * 100) + "%";
@@ -128,9 +128,12 @@ function updateUI() {
     if (bDisplay) bDisplay.innerText = "Bounty: " + (p.bounty || 0);
 
     // Call secondary updates
-    if (typeof updateSecondaryUI === 'function') updateSecondaryUI();
+    if (typeof window.updateSecondaryUI === 'function') window.updateSecondaryUI();
+    else if (typeof updateSecondaryUI === 'function') updateSecondaryUI();
+
     // Quest UI is updated via events, but good to check
-    if (typeof updateQuestUI === 'function') updateQuestUI();
+    if (typeof window.updateQuestUI === 'function') window.updateQuestUI();
+    else if (typeof updateQuestUI === 'function') updateQuestUI();
 }
 
 window.handleAuth = async function () {
@@ -161,7 +164,6 @@ window.handleAuth = async function () {
         let baseUrl = "";
 
         const endpoint = baseUrl + (authMode === 'login' ? '/api/login' : '/api/register');
-        const endpoint = (authMode === 'login' ? '/api/login' : '/api/register');
         const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -232,7 +234,6 @@ window.handleGuestAuth = async function () {
         let baseUrl = "";
 
         const res = await fetch(baseUrl + '/api/guest', { method: 'POST' });
-        const res = await fetch('/api/guest', { method: 'POST' });
         const data = await res.json();
 
         if (!res.ok) {
@@ -1050,46 +1051,7 @@ function setupScene() {
     }
 
 }
-gameState.lastMove = now;
-
-// Remove the misplaced `if (intersects.length > 0)` block from here
-// It seems to be part of a different function or was incorrectly placed.
-// The instruction implies it should be outside `updatePlayer` or in a different context.
-// For now, I'll assume it was a remnant and the user wants to restore the collision/camera logic.
-// If it was meant to be inside updatePlayer, the instruction would have placed it differently.
-
-// The following block was originally after the closing brace of updatePlayer.
-// I will keep it in its original relative position, outside updatePlayer.
-if (intersects.length > 0) {
-    // Find the root object with userData
-    let obj = intersects[0].object;
-    while (obj.parent && (!obj.userData || !obj.userData.id)) {
-        obj = obj.parent;
-    }
-
-    if (obj.userData) {
-        const dist = myPlayerMesh.position.distanceTo(obj.position);
-        if (dist < 8) { // Melee Range
-            if (obj.userData.type === "mob") {
-                socket.send(JSON.stringify({
-                    type: 'mob_hit',
-                    item: obj.userData.id
-                }));
-                // Visual Feedback
-                window.hitSystem = window.hitSystem || new HitSystem(scene);
-                window.hitSystem.showDamage(obj.position.clone().add(new THREE.Vector3(0, 2, 0)), 10);
-            } else if (obj.userData.type === "player") {
-                socket.send(JSON.stringify({
-                    type: 'player_hit',
-                    item: obj.userData.id
-                }));
-                // Visual Feedback
-                window.hitSystem = window.hitSystem || new HitSystem(scene);
-                window.hitSystem.showDamage(obj.position.clone().add(new THREE.Vector3(0, 2, 0)), 10);
-            }
-        }
-    }
-}
+gameState.lastMove = Date.now();
 
 
 // Skill keys
