@@ -134,7 +134,6 @@ function updateUI() {
 }
 
 window.handleAuth = async function () {
-    console.log("handleAuth clicked");
     const username = document.getElementById('username-input').value.trim();
     const password = document.getElementById('password-input').value.trim();
     const msg = document.getElementById('auth-msg');
@@ -161,7 +160,6 @@ window.handleAuth = async function () {
         let baseUrl = "";
 
         const endpoint = baseUrl + (authMode === 'login' ? '/api/login' : '/api/register');
-        const endpoint = (authMode === 'login' ? '/api/login' : '/api/register');
         const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -232,7 +230,6 @@ window.handleGuestAuth = async function () {
         let baseUrl = "";
 
         const res = await fetch(baseUrl + '/api/guest', { method: 'POST' });
-        const res = await fetch('/api/guest', { method: 'POST' });
         const data = await res.json();
 
         if (!res.ok) {
