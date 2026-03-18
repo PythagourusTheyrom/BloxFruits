@@ -46,7 +46,6 @@ const isOfflineMode = window.location.hostname.includes('github.io') ||
     urlParams.has('demo');
 
 if (isOfflineMode) {
-    console.log("%c OFFLINE / DEMO MODE ACTIVE ", "background: #222; color: #bada55; font-size: 20px");
     const authMsg = document.getElementById('auth-msg');
     if (authMsg) authMsg.innerText = "Demo Mode: Multiplayer Unavailable";
 }
