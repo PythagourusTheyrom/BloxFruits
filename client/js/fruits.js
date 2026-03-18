@@ -2181,7 +2181,6 @@ export class FruitSystem {
 
                     const dist = p.mesh.position.distanceTo(mob.mesh.position);
                     if (dist < 2.0) { // Hit!
-                        console.log("Ability Hit:", p.abilityName, id);
                         // Send to server
                         if (window.socket && window.socket.readyState === WebSocket.OPEN) {
                             window.socket.send(JSON.stringify({
