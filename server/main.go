@@ -307,6 +307,17 @@ func (h *Hub) run() {
 				roomStates[p.RoomID][id] = p
 			}
 
+			// ⚡ Bolt Optimization: Pre-compute JSON marshaling per room
+			// to avoid redundant marshaling for each client in the same room.
+			roomJSONs := make(map[string][]byte)
+			for roomID, roomState := range roomStates {
+				stateMsg, _ := json.Marshal(map[string]interface{}{
+					"type":    "state",
+					"players": roomState,
+				})
+				roomJSONs[roomID] = stateMsg
+			}
+
 			// 2. Send to clients based on their room
 			for conn, pid := range h.clients {
 				player, ok := h.players[pid]
@@ -315,12 +326,7 @@ func (h *Hub) run() {
 				}
 
 				// Get state for this player's room
-				roomState := roomStates[player.RoomID]
-
-				stateMsg, _ := json.Marshal(map[string]interface{}{
-					"type":    "state",
-					"players": roomState,
-				})
+				stateMsg := roomJSONs[player.RoomID]
 
 				if err := conn.WriteMessage(websocket.TextMessage, stateMsg); err != nil {
 					log.Println("Write error:", err)
@@ -533,8 +539,6 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
 						dist := math.Sqrt(dx*dx + dz*dz)
 						// Weapon Range
@@ -574,8 +578,6 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := victim.X - player.X
 						dz := victim.Z - player.Z
-						dx := victim.X - player.X
-						dz := victim.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
 						dist := math.Sqrt(dx*dx + dz*dz)
 						maxRange := 15.0
@@ -607,8 +609,6 @@ func main() {
 					hub.MobManager.mutex.Lock()
 					if mob, ok := hub.MobManager.Mobs[mobID]; ok {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
@@ -761,8 +761,6 @@ func main() {
 						pX, pZ := player.X, player.Z
 						for _, mob := range hub.MobManager.Mobs {
 							// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
-							dx := mob.X - pX
-							dz := mob.Z - pZ
 							dx := mob.X - pX
 							dz := mob.Z - pZ
 							// Use direct multiplication instead of math.Pow for performance
