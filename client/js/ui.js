@@ -24,8 +24,6 @@ export class InventorySystem {
             this.render();
             // Select newly added item if none selected?
             if (this.items.length === 1) this.selectSlot(0);
-        } else {
-            console.log("Inventory Full!");
         }
     }
 
@@ -37,7 +35,7 @@ export class InventorySystem {
         const item = this.items[index];
         if (item) {
             // Equip Logic
-            console.log(`Equipping ${item}`);
+
             // Send to server
             if (window.socket && window.socket.readyState === WebSocket.OPEN) {
                 window.socket.send(JSON.stringify({
