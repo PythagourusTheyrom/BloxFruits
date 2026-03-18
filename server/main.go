@@ -87,7 +87,7 @@ func newHub() *Hub {
 		players:      make(map[string]*Player),
 		register:     make(chan *websocket.Conn),
 		unregister:   make(chan *websocket.Conn),
-		broadcast:    make(chan []byte),
+		broadcast:    make(chan []byte, 256),
 		CurrentEvent: "None",
 		tokens:       make(map[string]string),
 	}
@@ -192,22 +192,19 @@ func (h *Hub) run() {
 			h.mutex.Unlock()
 
 		case msg := <-h.broadcast:
-			// Copy clients to avoid holding the mutex during blocking writes
+			// Safely iterate all clients and dispatch the broadcast message properly
 			h.mutex.Lock()
-			clientsCopy := make(map[*websocket.Conn]string)
-			for conn, id := range h.clients {
-				clientsCopy[conn] = id
+			conns := make([]*websocket.Conn, 0, len(h.clients))
+			for conn := range h.clients {
+				conns = append(conns, conn)
 			}
 			h.mutex.Unlock()
 
-			for conn, id := range clientsCopy {
-				// Simple broadcast to all.
-				// In production, might want non-blocking or targeted.
-				// For now, this ensures things like Chat and Events work.
-				// Ignore errors for now or log them?
+			for _, conn := range conns {
 				if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
-					log.Printf("Broadcast error: %v", err)
+					log.Printf("Broadcast failed: %v", err)
 					h.mutex.Lock()
+					id := h.clients[conn]
 					conn.Close()
 					delete(h.clients, conn)
 					delete(h.players, id)
@@ -533,8 +530,6 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
 						dist := math.Sqrt(dx*dx + dz*dz)
 						// Weapon Range
@@ -574,8 +569,6 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := victim.X - player.X
 						dz := victim.Z - player.Z
-						dx := victim.X - player.X
-						dz := victim.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
 						dist := math.Sqrt(dx*dx + dz*dz)
 						maxRange := 15.0
@@ -607,8 +600,6 @@ func main() {
 					hub.MobManager.mutex.Lock()
 					if mob, ok := hub.MobManager.Mobs[mobID]; ok {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
@@ -761,8 +752,6 @@ func main() {
 						pX, pZ := player.X, player.Z
 						for _, mob := range hub.MobManager.Mobs {
 							// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
-							dx := mob.X - pX
-							dz := mob.Z - pZ
 							dx := mob.X - pX
 							dz := mob.Z - pZ
 							// Use direct multiplication instead of math.Pow for performance
