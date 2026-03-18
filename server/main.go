@@ -9,6 +9,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"regexp"
 	"sync"
 	"time"
 
@@ -533,8 +534,6 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
 						dist := math.Sqrt(dx*dx + dz*dz)
 						// Weapon Range
@@ -574,8 +573,6 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := victim.X - player.X
 						dz := victim.Z - player.Z
-						dx := victim.X - player.X
-						dz := victim.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
 						dist := math.Sqrt(dx*dx + dz*dz)
 						maxRange := 15.0
@@ -607,8 +604,6 @@ func main() {
 					hub.MobManager.mutex.Lock()
 					if mob, ok := hub.MobManager.Mobs[mobID]; ok {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
@@ -763,8 +758,6 @@ func main() {
 							// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 							dx := mob.X - pX
 							dz := mob.Z - pZ
-							dx := mob.X - pX
-							dz := mob.Z - pZ
 							// Use direct multiplication instead of math.Pow for performance
 							dist := math.Sqrt(dx*dx + dz*dz)
 							if dist <= hakiRange {
@@ -834,6 +827,10 @@ func main() {
 		}
 		if req.Username == "" || req.Password == "" {
 			return c.Status(400).JSON(fiber.Map{"error": "Missing fields"})
+		}
+
+		if !isValidUsername(req.Username) {
+			return c.Status(400).JSON(fiber.Map{"error": "Invalid username. Must be 3-32 characters long and contain only alphanumeric characters and underscores."})
 		}
 
 		if err := RegisterUser(req.Username, req.Password); err != nil {
@@ -1012,6 +1009,16 @@ func generateSecureToken() string {
 		return generateID() // Fallback to semi-random ID if crypto/rand fails
 	}
 	return hex.EncodeToString(b)
+}
+
+var usernameRegex = regexp.MustCompile("^[a-zA-Z0-9_]+$")
+
+// isValidUsername validates the length and characters of a username
+func isValidUsername(username string) bool {
+	if len(username) < 3 || len(username) > 32 {
+		return false
+	}
+	return usernameRegex.MatchString(username)
 }
 
 func getWeaponDamage(w string) int {
