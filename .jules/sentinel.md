@@ -6,3 +6,7 @@
 **Vulnerability:** The application was using `innerHTML` to render dynamic user input, such as chat messages, directly into the DOM. This allowed for Cross-Site Scripting (XSS) where malicious users could inject executable JavaScript payloads.
 **Learning:** Chat features and any user-provided content that is broadcasted or displayed should never use `innerHTML`. Using `innerHTML` bypassing native DOM escaping mechanisms.
 **Prevention:** Always use safe DOM manipulation APIs like `document.createElement` and `textContent` or `innerText` when updating the UI with user input, instead of `innerHTML`.
+## 2024-05-20 - [Overly Permissive CORS Policy]
+**Vulnerability:** The backend server (`server/main.go`) enabled Cross-Origin Resource Sharing (CORS) using the default configuration `cors.New()`, which allows requests from any origin (`*`). This overly permissive setting could allow malicious websites to perform unauthorized API requests, access sensitive user data, and execute actions on behalf of users.
+**Learning:** Default middleware configurations often prioritize ease of use over security. Using `cors.New()` without specifying `AllowOrigins` defaults to allowing all origins, undermining the same-origin policy enforcement by browsers.
+**Prevention:** Always configure CORS middleware with an explicit list of trusted domains using `AllowOrigins`. For example, `cors.Config{AllowOrigins: "https://trusted.example.com"}` ensures that only approved origins can interact with the API.
