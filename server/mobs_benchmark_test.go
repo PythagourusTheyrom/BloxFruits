@@ -18,11 +18,11 @@ func BenchmarkMobManagerUpdate(b *testing.B) {
 
 	hub.MobManager.SpawnMob("mob1", "Ice Admiral", 2, 2)
 
-    // Start hub background goroutine to drain broadcast
-    go func() {
-        for range hub.broadcast {
-        }
-    }()
+	// Start hub background goroutine to drain broadcast
+	go func() {
+		for range hub.broadcast {
+		}
+	}()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
