@@ -161,7 +161,6 @@ window.handleAuth = async function () {
         let baseUrl = "";
 
         const endpoint = baseUrl + (authMode === 'login' ? '/api/login' : '/api/register');
-        const endpoint = (authMode === 'login' ? '/api/login' : '/api/register');
         const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -232,7 +231,6 @@ window.handleGuestAuth = async function () {
         let baseUrl = "";
 
         const res = await fetch(baseUrl + '/api/guest', { method: 'POST' });
-        const res = await fetch('/api/guest', { method: 'POST' });
         const data = await res.json();
 
         if (!res.ok) {
@@ -404,8 +402,6 @@ window.adminAction = function (action) {
         weapon: target,        // Target ID
         team: itemValue        // Extra value (Item Name)
     }));
-
-    console.log(`Admin Action: ${action} -> ${target} (${itemValue})`);
 }
 
 // Chat Logic
@@ -925,7 +921,7 @@ function setupScene() {
     window.effects = new SpecialEffects(scene);
 
     // Create Player
-    const playerColor = 0x00ff00; // Default or Team Color
+    let playerColor = 0x00ff00; // Default or Team Color
     const team = 'marine'; // Default
     if (team === 'marine') playerColor = 0x0072ff;
     // ... we don't know team yet, wait for spawn.
