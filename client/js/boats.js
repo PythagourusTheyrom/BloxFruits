@@ -53,7 +53,6 @@ export class BoatSystem {
 
         this.scene.add(group);
         this.boats.push(group);
-        console.log("Boat spawned at " + x + ", " + z);
     }
 
     tryEnterBoat() {
