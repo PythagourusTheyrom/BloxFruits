@@ -5,8 +5,6 @@ import (
 	"math"
 	"sync"
 	"time"
-
-	"github.com/gofiber/websocket/v2"
 )
 
 type MobState string
@@ -250,31 +248,12 @@ func (mm *MobManager) Update(deltaTime float64) {
 							})
 
 							// Broadcast to all clients (simplified, ideally only room)
-							// Send in a goroutine to prevent deadlocking the Hub.run loop,
+							// Send via non-blocking channel send to prevent deadlocking the Hub.run loop,
 							// which handles h.broadcast and also calls MobManager.Update.
-							go func() {
-								mm.hub.broadcast <- castMsg
-							}()
-							// mm.hub.broadcast <- castMsg // This might lock if channel is full?
-							// Better to iterate clients and send, or use a non-blocking send.
-							// Since we are inside MobManager mutex, we must accept that sending might be slow?
-							// Actually hub.broadcast is a channel read by hub.run loop.
-							// BUT: sending to channel while holding mutex is fine IF the receiver doesn't need this mutex to read.
-							// Hub.run reads broadcast, then does ... nothing with mutex usually?
-							// Hub.run case msg := <-h.broadcast: _ = msg.
-							// Wait, the broadcast handler in hub.run does NOTHING currently:
-							// case msg := <-h.broadcast: _ = msg
-							// This is a bug in Hub.run! It drops the message!
-
-							mm.hub.mutex.Lock()
-							clientsCopy := make([]*websocket.Conn, 0, len(mm.hub.clients))
-							for c := range mm.hub.clients {
-								clientsCopy = append(clientsCopy, c)
-							}
-							mm.hub.mutex.Unlock()
-
-							for _, c := range clientsCopy {
-								c.WriteMessage(1, castMsg) // 1 = TextMessage
+							select {
+							case mm.hub.broadcast <- castMsg:
+							default:
+								// Drop message if channel is full to prevent deadlocking
 							}
 						}
 					}
