@@ -1,5 +1,6 @@
-constructor(scene) {
-    this.scene = scene;
+export class ZoneSystem {
+    constructor(scene) {
+        this.scene = scene;
     this.zones = [];
     this.currentZone = "Ocean";
     this.setupUI();
