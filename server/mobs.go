@@ -206,9 +206,11 @@ func (mm *MobManager) Update(deltaTime float64) {
 			// Move towards player
 			dx := closestPlayer.X - mob.X
 			dz := closestPlayer.Z - mob.Z
-			dist := math.Sqrt(dx*dx + dz*dz)
+			distSq := dx*dx + dz*dz
 
-			if dist > 1.5 { // Keep distance to attack
+			if distSq > 1.5*1.5 { // Keep distance to attack
+				// ⚡ Bolt Optimization: Defer Sqrt until after threshold condition is met
+				dist := math.Sqrt(distSq)
 				dirX := dx / dist
 				dirZ := dz / dist
 
@@ -429,13 +431,17 @@ func (mm *MobManager) Update(deltaTime float64) {
 				// Return to spawn
 				dx := mob.spawnX - mob.X
 				dz := mob.spawnZ - mob.Z
-				dist := math.Sqrt(dx*dx + dz*dz)
+				// ⚡ Bolt Optimization: Defer Sqrt until after threshold condition is met
+				distSq := dx*dx + dz*dz
+				if distSq > 0 {
+					dist := math.Sqrt(distSq)
 
-				dirX := dx / dist
-				dirZ := dz / dist
+					dirX := dx / dist
+					dirZ := dz / dist
 
-				mob.X += dirX * (mob.Speed * 0.5) * deltaTime
-				mob.Z += dirZ * (mob.Speed * 0.5) * deltaTime
+					mob.X += dirX * (mob.Speed * 0.5) * deltaTime
+					mob.Z += dirZ * (mob.Speed * 0.5) * deltaTime
+				}
 			}
 		}
 	}
