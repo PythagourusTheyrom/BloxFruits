@@ -160,7 +160,6 @@ window.handleAuth = async function () {
 
         let baseUrl = "";
 
-        const endpoint = baseUrl + (authMode === 'login' ? '/api/login' : '/api/register');
         const endpoint = (authMode === 'login' ? '/api/login' : '/api/register');
         const res = await fetch(endpoint, {
             method: 'POST',
@@ -231,7 +230,6 @@ window.handleGuestAuth = async function () {
 
         let baseUrl = "";
 
-        const res = await fetch(baseUrl + '/api/guest', { method: 'POST' });
         const res = await fetch('/api/guest', { method: 'POST' });
         const data = await res.json();
 
@@ -1050,7 +1048,7 @@ function setupScene() {
     }
 
 }
-gameState.lastMove = now;
+// gameState.lastMove = now;
 
 // Remove the misplaced `if (intersects.length > 0)` block from here
 // It seems to be part of a different function or was incorrectly placed.
@@ -1060,7 +1058,7 @@ gameState.lastMove = now;
 
 // The following block was originally after the closing brace of updatePlayer.
 // I will keep it in its original relative position, outside updatePlayer.
-if (intersects.length > 0) {
+if (false && intersects.length > 0) { // intersect is not defined
     // Find the root object with userData
     let obj = intersects[0].object;
     while (obj.parent && (!obj.userData || !obj.userData.id)) {
