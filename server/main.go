@@ -14,6 +14,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/websocket/v2"
 )
 
@@ -533,8 +534,6 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
 						dist := math.Sqrt(dx*dx + dz*dz)
 						// Weapon Range
@@ -574,8 +573,6 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := victim.X - player.X
 						dz := victim.Z - player.Z
-						dx := victim.X - player.X
-						dz := victim.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
 						dist := math.Sqrt(dx*dx + dz*dz)
 						maxRange := 15.0
@@ -607,8 +604,6 @@ func main() {
 					hub.MobManager.mutex.Lock()
 					if mob, ok := hub.MobManager.Mobs[mobID]; ok {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
@@ -763,8 +758,6 @@ func main() {
 							// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 							dx := mob.X - pX
 							dz := mob.Z - pZ
-							dx := mob.X - pX
-							dz := mob.Z - pZ
 							// Use direct multiplication instead of math.Pow for performance
 							dist := math.Sqrt(dx*dx + dz*dz)
 							if dist <= hakiRange {
@@ -822,8 +815,22 @@ func main() {
 		}
 	}))
 
+	// Rate Limiter for Sensitive Endpoints
+	authLimiter := limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 1 * time.Minute,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.IP()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
+				"error": "Too many requests, please try again later.",
+			})
+		},
+	})
+
 	// Auth Endpoints
-	app.Post("/api/register", func(c *fiber.Ctx) error {
+	app.Post("/api/register", authLimiter, func(c *fiber.Ctx) error {
 		type RegisterRequest struct {
 			Username string `json:"username"`
 			Password string `json:"password"`
@@ -843,7 +850,7 @@ func main() {
 		return c.JSON(fiber.Map{"status": "success"})
 	})
 
-	app.Post("/api/guest", func(c *fiber.Ctx) error {
+	app.Post("/api/guest", authLimiter, func(c *fiber.Ctx) error {
 		// Generate Guest ID
 		guestID := fmt.Sprintf("Guest_%d", time.Now().UnixNano()%10000)
 
@@ -889,7 +896,7 @@ func main() {
 		})
 	})
 
-	app.Post("/api/login", func(c *fiber.Ctx) error {
+	app.Post("/api/login", authLimiter, func(c *fiber.Ctx) error {
 		type LoginRequest struct {
 			Username string `json:"username"`
 			Password string `json:"password"`
