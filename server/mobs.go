@@ -147,7 +147,7 @@ func (mm *MobManager) Update(deltaTime float64) {
 		// AI Logic
 		// 1. Check for nearby players to chase
 		var closestPlayer *Player
-		minDist := 15.0 // Detection radius
+		minDistSq := 15.0 * 15.0 // Detection radius squared
 
 		mobCx := int(math.Floor(mob.X / cellSize))
 		mobCz := int(math.Floor(mob.Z / cellSize))
@@ -157,13 +157,13 @@ func (mm *MobManager) Update(deltaTime float64) {
 			for dz := -1; dz <= 1; dz++ {
 				key := cellKey{mobCx + dx, mobCz + dz}
 				for _, p := range grid[key] {
-					dist := distance(mob.X, mob.Z, p.X, p.Z)
+					distSq := distanceSq(mob.X, mob.Z, p.X, p.Z)
 
 					// Magma Aura Passive (Feature 6)
 					// Apply tick damage every frame? Too fast.
 					// Let's rely on randomness to throttle or add a BurnTimer.
 					// Random 5% chance per tick (20 ticks/sec -> 1 hit/sec avg)
-					if p.Weapon == "Magma Fruit" && dist < 8.0 {
+					if p.Weapon == "Magma Fruit" && distSq < 64.0 { // 8.0^2
 						if math.Sin(float64(now)) > 0.95 { // Simple random throttle
 							mob.Health -= 5
 							// Don't kill implicitly here without rewards?
@@ -178,13 +178,13 @@ func (mm *MobManager) Update(deltaTime float64) {
 					// Shadow Stealth (Feature 10)
 					if p.Weapon == "Shadow Fruit" { // Renamed Ghost->Shadow in Roster
 						// Detection radius reduced
-						if dist > 5.0 {
+						if distSq > 25.0 { // 5.0^2
 							continue // Ignore player unless very close
 						}
 					}
 
-					if dist < minDist {
-						minDist = dist
+					if distSq < minDistSq {
+						minDistSq = distSq
 						closestPlayer = p
 					}
 				}
@@ -206,9 +206,10 @@ func (mm *MobManager) Update(deltaTime float64) {
 			// Move towards player
 			dx := closestPlayer.X - mob.X
 			dz := closestPlayer.Z - mob.Z
-			dist := math.Sqrt(dx*dx + dz*dz)
+			distSq := dx*dx + dz*dz
 
-			if dist > 1.5 { // Keep distance to attack
+			if distSq > 2.25 { // 1.5^2 Keep distance to attack
+				dist := math.Sqrt(distSq)
 				dirX := dx / dist
 				dirZ := dz / dist
 
@@ -225,7 +226,7 @@ func (mm *MobManager) Update(deltaTime float64) {
 				if mob.IsBoss && mob.Type == "Ice Admiral" {
 					if now > mob.AbilityCD {
 						// Range Check (e.g. 15 units)
-						if dist < 15.0 {
+						if distSq < 225.0 { // 15^2
 							// Cast Ability
 							mob.AbilityCD = now + 5000 // 5s Cooldown
 
@@ -397,8 +398,9 @@ func (mm *MobManager) Update(deltaTime float64) {
 				if closestPlayer.Weapon == "Paw Fruit" {
 					dx := mob.X - closestPlayer.X
 					dz := mob.Z - closestPlayer.Z
-					mag := math.Sqrt(dx*dx + dz*dz)
-					if mag > 0 && mag < 4.0 { // Push if too close
+					magSq := dx*dx + dz*dz
+					if magSq > 0 && magSq < 16.0 { // 4.0^2 Push if too close
+						mag := math.Sqrt(magSq)
 						dx /= mag
 						dz /= mag
 						mob.X += dx * 5.0 // Knockback
@@ -410,8 +412,9 @@ func (mm *MobManager) Update(deltaTime float64) {
 				if closestPlayer.Weapon == "Dark Fruit" {
 					dx := mob.X - closestPlayer.X
 					dz := mob.Z - closestPlayer.Z
-					mag := math.Sqrt(dx*dx + dz*dz)
-					if mag > 0 && mag < 10.0 && mag > 2.0 { // Pull if within 10 units but not too close
+					magSq := dx*dx + dz*dz
+					if magSq > 0 && magSq < 100.0 && magSq > 4.0 { // Pull if within 10 units but not too close
+						mag := math.Sqrt(magSq)
 						dx /= mag
 						dz /= mag
 						mob.X -= dx * 2.0 * deltaTime // Pull towards player
@@ -424,12 +427,12 @@ func (mm *MobManager) Update(deltaTime float64) {
 		} else {
 			// Wander or Return to Spawn
 			mob.State = StateIdle
-			distToSpawn := distance(mob.X, mob.Z, mob.spawnX, mob.spawnZ)
-			if distToSpawn > 1.0 {
+			distToSpawnSq := distanceSq(mob.X, mob.Z, mob.spawnX, mob.spawnZ)
+			if distToSpawnSq > 1.0 {
 				// Return to spawn
 				dx := mob.spawnX - mob.X
 				dz := mob.spawnZ - mob.Z
-				dist := math.Sqrt(dx*dx + dz*dz)
+				dist := math.Sqrt(distToSpawnSq)
 
 				dirX := dx / dist
 				dirZ := dz / dist
@@ -450,4 +453,12 @@ func distance(x1, z1, x2, z2 float64) float64 {
 	dx := x2 - x1
 	dz := z2 - z1
 	return math.Sqrt(dx*dx + dz*dz)
+}
+
+// distanceSq calculates the squared Euclidean distance between two points.
+// Uses direct multiplication instead of math.Pow and avoids math.Sqrt for performance.
+func distanceSq(x1, z1, x2, z2 float64) float64 {
+	dx := x2 - x1
+	dz := z2 - z1
+	return dx*dx + dz*dz
 }
