@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"sync"
 	"time"
@@ -533,17 +532,15 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
-						dist := math.Sqrt(dx*dx + dz*dz)
+						distSq := dx*dx + dz*dz
 						// Weapon Range
-						maxRange := 15.0 // Melee/Sword
+						maxRangeSq := 225.0 // 15.0^2 Melee/Sword
 						if player.Weapon == "bazooka" || player.Weapon == "slingshot" {
-							maxRange = 80.0
+							maxRangeSq = 6400.0 // 80.0^2
 						}
 
-						if dist > maxRange {
+						if distSq > maxRangeSq {
 							hub.MobManager.mutex.Unlock()
 							continue // Out of range
 						}
@@ -574,15 +571,13 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := victim.X - player.X
 						dz := victim.Z - player.Z
-						dx := victim.X - player.X
-						dz := victim.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
-						dist := math.Sqrt(dx*dx + dz*dz)
-						maxRange := 15.0
+						distSq := dx*dx + dz*dz
+						maxRangeSq := 225.0 // 15.0^2
 						if player.Weapon == "bazooka" || player.Weapon == "slingshot" {
-							maxRange = 80.0
+							maxRangeSq = 6400.0 // 80.0^2
 						}
-						if dist > maxRange {
+						if distSq > maxRangeSq {
 							hub.mutex.Unlock()
 							continue
 						}
@@ -609,13 +604,11 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
-						dist := math.Sqrt(dx*dx + dz*dz)
+						distSq := dx*dx + dz*dz
 						hub.MobManager.mutex.Unlock()
 						// Max Range needed.
-						if dist > 150.0 { // Generous range for now
+						if distSq > 22500.0 { // 150.0^2 Generous range for now
 							continue
 						}
 					} else {
@@ -743,8 +736,8 @@ func main() {
 						}
 					case "use_haki_conqueror":
 						// Range Check
-						hakiRange := 20.0
-						stunDuration := 5.0 // Seconds
+						hakiRangeSq := 400.0 // 20.0^2
+						stunDuration := 5.0  // Seconds
 
 						// Broadcast Visuals
 						broadcastMsg := map[string]interface{}{
@@ -763,11 +756,9 @@ func main() {
 							// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 							dx := mob.X - pX
 							dz := mob.Z - pZ
-							dx := mob.X - pX
-							dz := mob.Z - pZ
 							// Use direct multiplication instead of math.Pow for performance
-							dist := math.Sqrt(dx*dx + dz*dz)
-							if dist <= hakiRange {
+							distSq := dx*dx + dz*dz
+							if distSq <= hakiRangeSq {
 								mob.State = StateStunned
 								mob.StunEnd = now + int64(stunDuration*1000)
 							}

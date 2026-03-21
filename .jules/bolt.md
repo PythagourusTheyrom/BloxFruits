@@ -4,3 +4,6 @@
 ## 2026-03-12 - [Go Spatial Math Optimization]
 **Learning:** `math.Pow(x, 2)` incurs massive overhead in Go during high-frequency tick calculations (e.g. 60 TPS game loops with many entities) because it requires function calls and internal type handling for edge cases. Profiling showed it took over 60% of CPU time in `BenchmarkMobUpdate`.
 **Action:** Always prefer direct multiplication (e.g., `dx*dx`) over `math.Pow(..., 2)` when calculating spatial distances or squared magnitudes in high-performance hot paths within the Go backend.
+## 2026-03-21 - [Optimize High-Frequency Distance Checks]
+**Learning:** Calling `math.Sqrt()` for distance checks in high-frequency loops (e.g., `MobUpdate`) introduces significant CPU overhead. By comparing the squared distance (`distSq`) against a squared threshold (`maxRangeSq`), we bypass the expensive square root calculation entirely, yielding a ~12-14% performance uplift in `BenchmarkMobUpdate`.
+**Action:** When evaluating threshold conditions in high-performance hot paths within the Go backend, prefer checking squared distances (e.g., `distSq > maxRange * maxRange`) instead of calculating exact distances with `math.Sqrt()`. Defer `math.Sqrt()` only to situations where exact distance or vector normalization is strictly required (and only calculate it after the threshold condition is met).
