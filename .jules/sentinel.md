@@ -6,3 +6,7 @@
 **Vulnerability:** The application was using `innerHTML` to render dynamic user input, such as chat messages, directly into the DOM. This allowed for Cross-Site Scripting (XSS) where malicious users could inject executable JavaScript payloads.
 **Learning:** Chat features and any user-provided content that is broadcasted or displayed should never use `innerHTML`. Using `innerHTML` bypassing native DOM escaping mechanisms.
 **Prevention:** Always use safe DOM manipulation APIs like `document.createElement` and `textContent` or `innerText` when updating the UI with user input, instead of `innerHTML`.
+## 2026-03-22 - [Predictable Guest IDs and Weak Token Generation Fallback]
+**Vulnerability:** The application was generating `GuestID`s using `time.Now().UnixNano()`, which is predictable and vulnerable to enumeration. Additionally, `generateSecureToken()` had an insecure fallback that returned a similar predictable ID (`generateID()`) if `crypto/rand` failed, potentially exposing user sessions to hijacking if entropy was low.
+**Learning:** Cryptographic functions for tokens or identifiers should never have an insecure fallback. Generating tokens or IDs based on timestamps opens the system to trivial guessing attacks, bypassing authorization mechanisms.
+**Prevention:** Always use cryptographically secure random bytes (e.g., `crypto/rand`) for generating authentication tokens, IDs, and session keys. If sufficient entropy cannot be gathered, the application must explicitly fail securely (e.g., return a 500 error) rather than proceeding with weak secrets.
