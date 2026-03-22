@@ -656,6 +656,12 @@ body {
     box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
 }
 
+.neon-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .auth-divider {
     display: flex;
     align-items: center;
