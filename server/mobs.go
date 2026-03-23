@@ -397,8 +397,9 @@ func (mm *MobManager) Update(deltaTime float64) {
 				if closestPlayer.Weapon == "Paw Fruit" {
 					dx := mob.X - closestPlayer.X
 					dz := mob.Z - closestPlayer.Z
-					mag := math.Sqrt(dx*dx + dz*dz)
-					if mag > 0 && mag < 4.0 { // Push if too close
+					magSq := dx*dx + dz*dz
+					if magSq > 0 && magSq < 4.0*4.0 { // Push if too close
+						mag := math.Sqrt(magSq)
 						dx /= mag
 						dz /= mag
 						mob.X += dx * 5.0 // Knockback
@@ -410,8 +411,9 @@ func (mm *MobManager) Update(deltaTime float64) {
 				if closestPlayer.Weapon == "Dark Fruit" {
 					dx := mob.X - closestPlayer.X
 					dz := mob.Z - closestPlayer.Z
-					mag := math.Sqrt(dx*dx + dz*dz)
-					if mag > 0 && mag < 10.0 && mag > 2.0 { // Pull if within 10 units but not too close
+					magSq := dx*dx + dz*dz
+					if magSq > 2.0*2.0 && magSq < 10.0*10.0 { // Pull if within 10 units but not too close
+						mag := math.Sqrt(magSq)
 						dx /= mag
 						dz /= mag
 						mob.X -= dx * 2.0 * deltaTime // Pull towards player
