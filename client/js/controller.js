@@ -180,7 +180,7 @@ export class CharacterController {
             this.jumpBuffer = 0;
 
             // Geppo FX (Sky Walk)
-            if (SpeedR.FX && SpeedR.FX.createFloatingText) {
+            if (THREE.FX && THREE.FX.createFloatingText) {
                 // Actually use custom ring effect if possible, or simple particle
                 // Manually create ring for now since FX lib is limited
                 const ring = new THREE.Mesh(
@@ -206,32 +206,31 @@ export class CharacterController {
                 requestAnimationFrame(animate);
             }
         }
-    }
 
         // 5. Physics Update
         this.velocity.y -= this.gravity * deltaTime;
 
-const deltaPos = this.velocity.clone().multiplyScalar(deltaTime);
-const nextPos = this.mesh.position.clone().add(deltaPos);
+        const deltaPos = this.velocity.clone().multiplyScalar(deltaTime);
+        const nextPos = this.mesh.position.clone().add(deltaPos);
 
-const results = this.physics.resolveMovement(this.mesh.position, nextPos, this.velocity);
+        const results = this.physics.resolveMovement(this.mesh.position, nextPos, this.velocity);
 
-this.mesh.position.copy(results.position);
-this.velocity.copy(results.velocity);
-this.isGrounded = results.isGrounded;
+        this.mesh.position.copy(results.position);
+        this.velocity.copy(results.velocity);
+        this.isGrounded = results.isGrounded;
 
-// 6. Rotate Character
-if (moveDir.lengthSq() > 0.1 && !this.isDashing) {
-    const targetRot = Math.atan2(moveDir.x, moveDir.z);
-    // Normalize angle for shortest path
-    let currRot = this.mesh.rotation.y;
-    // Ensure both are positive 0-2PI or similar range
-    // Actually just diff logic:
-    let diff = targetRot - currRot;
-    while (diff <= -Math.PI) diff += Math.PI * 2;
-    while (diff > Math.PI) diff -= Math.PI * 2;
+        // 6. Rotate Character
+        if (moveDir.lengthSq() > 0.1 && !this.isDashing) {
+            const targetRot = Math.atan2(moveDir.x, moveDir.z);
+            // Normalize angle for shortest path
+            let currRot = this.mesh.rotation.y;
+            // Ensure both are positive 0-2PI or similar range
+            // Actually just diff logic:
+            let diff = targetRot - currRot;
+            while (diff <= -Math.PI) diff += Math.PI * 2;
+            while (diff > Math.PI) diff -= Math.PI * 2;
 
-    this.mesh.rotation.y += diff * 10 * deltaTime;
-}
+            this.mesh.rotation.y += diff * 10 * deltaTime;
+        }
     }
 }

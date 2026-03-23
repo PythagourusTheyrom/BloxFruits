@@ -1,9 +1,12 @@
-constructor(scene) {
-    this.scene = scene;
-    this.zones = [];
-    this.currentZone = "Ocean";
-    this.setupUI();
-}
+import { SpeedR } from './SpeedR.js';
+
+export class ZoneSystem {
+    constructor(scene) {
+        this.scene = scene;
+        this.zones = [];
+        this.currentZone = "Ocean";
+        this.setupUI();
+    }
 
 setupUI() {
     // Create Zone Banner if it doesn't exist
