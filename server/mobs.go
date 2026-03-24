@@ -206,9 +206,11 @@ func (mm *MobManager) Update(deltaTime float64) {
 			// Move towards player
 			dx := closestPlayer.X - mob.X
 			dz := closestPlayer.Z - mob.Z
-			dist := math.Sqrt(dx*dx + dz*dz)
+			// ⚡ Bolt Optimization: Use squared distance for threshold checks to avoid expensive math.Sqrt
+			distSq := dx*dx + dz*dz
 
-			if dist > 1.5 { // Keep distance to attack
+			if distSq > 2.25 { // 1.5 * 1.5 = 2.25. Keep distance to attack
+				dist := math.Sqrt(distSq)
 				dirX := dx / dist
 				dirZ := dz / dist
 
@@ -397,8 +399,10 @@ func (mm *MobManager) Update(deltaTime float64) {
 				if closestPlayer.Weapon == "Paw Fruit" {
 					dx := mob.X - closestPlayer.X
 					dz := mob.Z - closestPlayer.Z
-					mag := math.Sqrt(dx*dx + dz*dz)
-					if mag > 0 && mag < 4.0 { // Push if too close
+					// ⚡ Bolt Optimization: Use squared distance for threshold checks to avoid expensive math.Sqrt
+					magSq := dx*dx + dz*dz
+					if magSq > 0 && magSq < 16.0 { // 4.0 * 4.0 = 16.0. Push if too close
+						mag := math.Sqrt(magSq)
 						dx /= mag
 						dz /= mag
 						mob.X += dx * 5.0 // Knockback
@@ -410,8 +414,10 @@ func (mm *MobManager) Update(deltaTime float64) {
 				if closestPlayer.Weapon == "Dark Fruit" {
 					dx := mob.X - closestPlayer.X
 					dz := mob.Z - closestPlayer.Z
-					mag := math.Sqrt(dx*dx + dz*dz)
-					if mag > 0 && mag < 10.0 && mag > 2.0 { // Pull if within 10 units but not too close
+					// ⚡ Bolt Optimization: Use squared distance for threshold checks to avoid expensive math.Sqrt
+					magSq := dx*dx + dz*dz
+					if magSq > 0 && magSq < 100.0 && magSq > 4.0 { // 10.0^2 = 100.0, 2.0^2 = 4.0. Pull if within 10 units but not too close
+						mag := math.Sqrt(magSq)
 						dx /= mag
 						dz /= mag
 						mob.X -= dx * 2.0 * deltaTime // Pull towards player
@@ -424,12 +430,17 @@ func (mm *MobManager) Update(deltaTime float64) {
 		} else {
 			// Wander or Return to Spawn
 			mob.State = StateIdle
-			distToSpawn := distance(mob.X, mob.Z, mob.spawnX, mob.spawnZ)
-			if distToSpawn > 1.0 {
+			// ⚡ Bolt Optimization: Use squared distance for threshold checks to avoid expensive math.Sqrt
+			// distance function still uses Sqrt, so we calculate squared distance here manually
+			dxSpawn := mob.X - mob.spawnX
+			dzSpawn := mob.Z - mob.spawnZ
+			distToSpawnSq := dxSpawn*dxSpawn + dzSpawn*dzSpawn
+
+			if distToSpawnSq > 1.0 { // 1.0 * 1.0 = 1.0
 				// Return to spawn
 				dx := mob.spawnX - mob.X
 				dz := mob.spawnZ - mob.Z
-				dist := math.Sqrt(dx*dx + dz*dz)
+				dist := math.Sqrt(distToSpawnSq)
 
 				dirX := dx / dist
 				dirZ := dz / dist
