@@ -139,6 +139,7 @@ window.handleAuth = async function () {
     const password = document.getElementById('password-input').value.trim();
     const msg = document.getElementById('auth-msg');
     const spinner = document.getElementById('loading-spinner');
+    const authBtn = document.getElementById('auth-btn');
 
     if (!username || !password) {
         msg.innerText = "Please enter username and password.";
@@ -147,6 +148,11 @@ window.handleAuth = async function () {
 
     msg.innerText = "";
     if (spinner) spinner.classList.remove('hidden');
+
+    if (authBtn) {
+        authBtn.disabled = true;
+        authBtn.textContent = authMode === 'login' ? 'LOGGING IN...' : 'REGISTERING...';
+    }
 
     try {
         if (isOfflineMode) {
@@ -161,7 +167,6 @@ window.handleAuth = async function () {
         let baseUrl = "";
 
         const endpoint = baseUrl + (authMode === 'login' ? '/api/login' : '/api/register');
-        const endpoint = (authMode === 'login' ? '/api/login' : '/api/register');
         const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -193,6 +198,10 @@ window.handleAuth = async function () {
                 msg.style.color = '#ff3333';
                 msg.innerText = loginData.error;
                 if (spinner) spinner.classList.add('hidden');
+                if (authBtn) {
+                    authBtn.disabled = false;
+                    authBtn.textContent = 'REGISTER & PLAY';
+                }
                 return;
             }
             showDashboard(loginData.token, loginData.username);
@@ -209,6 +218,11 @@ window.handleAuth = async function () {
         msg.style.color = '#ff3333';
         console.error(e);
         if (spinner) spinner.classList.add('hidden');
+    } finally {
+        if (authBtn) {
+            authBtn.disabled = false;
+            authBtn.textContent = authMode === 'login' ? 'LOGIN TO PLAY' : 'REGISTER & PLAY';
+        }
     }
 };
 
@@ -216,10 +230,16 @@ window.handleGuestAuth = async function () {
     console.log("Guest Login Clicked");
     const msg = document.getElementById('auth-msg');
     const spinner = document.getElementById('loading-spinner');
+    const guestBtn = document.querySelector('.guest-btn');
 
     msg.innerText = "Creating Guest Account...";
     msg.style.color = '#00c6ff';
     if (spinner) spinner.classList.remove('hidden');
+
+    if (guestBtn) {
+        guestBtn.disabled = true;
+        guestBtn.textContent = 'CONNECTING...';
+    }
 
     try {
         if (isOfflineMode) {
@@ -232,7 +252,6 @@ window.handleGuestAuth = async function () {
         let baseUrl = "";
 
         const res = await fetch(baseUrl + '/api/guest', { method: 'POST' });
-        const res = await fetch('/api/guest', { method: 'POST' });
         const data = await res.json();
 
         if (!res.ok) {
@@ -252,6 +271,10 @@ window.handleGuestAuth = async function () {
         console.error(e);
     } finally {
         if (spinner) spinner.classList.add('hidden');
+        if (guestBtn) {
+            guestBtn.disabled = false;
+            guestBtn.textContent = 'PLAY AS GUEST';
+        }
     }
 }
 
