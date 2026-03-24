@@ -206,13 +206,12 @@ export class CharacterController {
                 requestAnimationFrame(animate);
             }
         }
-    }
 
         // 5. Physics Update
         this.velocity.y -= this.gravity * deltaTime;
 
-const deltaPos = this.velocity.clone().multiplyScalar(deltaTime);
-const nextPos = this.mesh.position.clone().add(deltaPos);
+        const deltaPos = this.velocity.clone().multiplyScalar(deltaTime);
+        const nextPos = this.mesh.position.clone().add(deltaPos);
 
 const results = this.physics.resolveMovement(this.mesh.position, nextPos, this.velocity);
 
