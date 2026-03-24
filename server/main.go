@@ -533,8 +533,6 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
 						dist := math.Sqrt(dx*dx + dz*dz)
 						// Weapon Range
@@ -574,8 +572,6 @@ func main() {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 						dx := victim.X - player.X
 						dz := victim.Z - player.Z
-						dx := victim.X - player.X
-						dz := victim.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
 						dist := math.Sqrt(dx*dx + dz*dz)
 						maxRange := 15.0
@@ -607,8 +603,6 @@ func main() {
 					hub.MobManager.mutex.Lock()
 					if mob, ok := hub.MobManager.Mobs[mobID]; ok {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
-						dx := mob.X - player.X
-						dz := mob.Z - player.Z
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
@@ -763,8 +757,6 @@ func main() {
 							// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
 							dx := mob.X - pX
 							dz := mob.Z - pZ
-							dx := mob.X - pX
-							dz := mob.Z - pZ
 							// Use direct multiplication instead of math.Pow for performance
 							dist := math.Sqrt(dx*dx + dz*dz)
 							if dist <= hakiRange {
@@ -878,7 +870,11 @@ func main() {
 		}
 
 		// Generate Secure Token
-		token := generateSecureToken()
+		token, err := generateSecureToken()
+		if err != nil {
+			hub.mutex.Unlock()
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to generate token"})
+		}
 		hub.tokens[token] = guestID
 		hub.mutex.Unlock()
 
@@ -905,12 +901,10 @@ func main() {
 		}
 
 		// Generate secure token
-		_ = generateSecureToken()
-		tokenBytes := make([]byte, 32)
-		if _, err := rand.Read(tokenBytes); err != nil {
+		token, err := generateSecureToken()
+		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Failed to generate token"})
 		}
-		token := hex.EncodeToString(tokenBytes)
 
 		hub.mutex.Lock()
 		hub.tokens[token] = user.ID
@@ -1006,12 +1000,12 @@ func generateID() string {
 	return time.Now().Format("150405.000000") // Simple ID
 }
 
-func generateSecureToken() string {
-	b := make([]byte, 16)
+func generateSecureToken() (string, error) {
+	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
-		return generateID() // Fallback to semi-random ID if crypto/rand fails
+		return "", err // Fail securely instead of using predictable ID
 	}
-	return hex.EncodeToString(b)
+	return hex.EncodeToString(b), nil
 }
 
 func getWeaponDamage(w string) int {

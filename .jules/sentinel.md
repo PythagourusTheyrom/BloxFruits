@@ -6,3 +6,7 @@
 **Vulnerability:** The application was using `innerHTML` to render dynamic user input, such as chat messages, directly into the DOM. This allowed for Cross-Site Scripting (XSS) where malicious users could inject executable JavaScript payloads.
 **Learning:** Chat features and any user-provided content that is broadcasted or displayed should never use `innerHTML`. Using `innerHTML` bypassing native DOM escaping mechanisms.
 **Prevention:** Always use safe DOM manipulation APIs like `document.createElement` and `textContent` or `innerText` when updating the UI with user input, instead of `innerHTML`.
+## 2024-03-24 - [Insecure Token Generation]
+**Vulnerability:** The application was generating insecure tokens by using only 16 bytes of entropy and falling back to a predictable time-based ID if entropy generation failed.
+**Learning:** Using a predictable time-based ID as a token fallback allows an attacker to easily guess session tokens, leading to potential account takeover and unauthorized access.
+**Prevention:** Always generate tokens with sufficient entropy (e.g., 32 bytes) and ensure that the application fails securely (returning an error) rather than falling back to an insecure, predictable token.
