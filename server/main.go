@@ -88,7 +88,7 @@ func newHub() *Hub {
 		players:      make(map[string]*Player),
 		register:     make(chan *websocket.Conn),
 		unregister:   make(chan *websocket.Conn),
-		broadcast:    make(chan []byte),
+		broadcast:    make(chan []byte, 256),
 		CurrentEvent: "None",
 		tokens:       make(map[string]string),
 	}
@@ -216,8 +216,9 @@ func (h *Hub) run() {
 				// In production, might want non-blocking or targeted.
 				// For now, this ensures things like Chat and Events work.
 				if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
-					log.Printf("Broadcast error: %v", err)
+					log.Printf("Broadcast failed: %v", err)
 					h.mutex.Lock()
+					id := h.clients[conn]
 					conn.Close()
 					if id, ok := h.clients[conn]; ok {
 						delete(h.clients, conn)
