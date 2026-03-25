@@ -805,3 +805,33 @@ body {
     justify-content: center;
     margin-top: 20px;
 }
+/* Close Buttons */
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 0, 76, 0.2);
+    border: 1px solid rgba(255, 0, 76, 0.5);
+    color: #ff004c;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+    z-index: 100;
+}
+
+.close-btn:hover {
+    background: #ff004c;
+    color: white;
+    transform: scale(1.1) rotate(90deg);
+}
+
+.shop-panel, .admin-panel {
+    position: relative;
+}
