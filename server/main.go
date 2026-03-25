@@ -1085,7 +1085,7 @@ func getWeaponCooldown(w string) int64 {
 // Safe Zone Logic
 func isSafeZone(x, z float64) bool {
 	// Spawn (Start Island) - Radius 45
-	if distance(x, z, 0, 0) < 45.0 {
+	if distanceSq(x, z, 0, 0) < 2025.0 {
 		return true
 	}
 	// Add other safe zones here if needed
