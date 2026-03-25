@@ -59,6 +59,7 @@ type Quest struct {
 // Hub maintains the set of active clients and broadcasts messages to the clients.
 type Hub struct {
 	clients      map[*websocket.Conn]string // Conn -> PlayerID
+	clientConns  []*websocket.Conn          // Copy-on-write slice for zero-allocation broadcasts
 	players      map[string]*Player
 	register     chan *websocket.Conn
 	unregister   chan *websocket.Conn
@@ -83,6 +84,7 @@ func (h *Hub) clientsUnsafe(playerID string) (*websocket.Conn, bool) {
 func newHub() *Hub {
 	return &Hub{
 		clients:      make(map[*websocket.Conn]string),
+		clientConns:  make([]*websocket.Conn, 0),
 		players:      make(map[string]*Player),
 		register:     make(chan *websocket.Conn),
 		unregister:   make(chan *websocket.Conn),
@@ -144,6 +146,12 @@ func (h *Hub) run() {
 
 			h.clients[conn] = username
 
+			// Rebuild copy-on-write slice for zero-allocation broadcasts
+			h.clientConns = make([]*websocket.Conn, 0, len(h.clients))
+			for c := range h.clients {
+				h.clientConns = append(h.clientConns, c)
+			}
+
 			// Load player from DB if not in memory
 			if _, ok := h.players[username]; !ok {
 				p, err := LoadUser(username)
@@ -185,31 +193,41 @@ func (h *Hub) run() {
 			h.mutex.Lock()
 			if id, ok := h.clients[conn]; ok {
 				delete(h.clients, conn)
+
+				// Rebuild copy-on-write slice for zero-allocation broadcasts
+				h.clientConns = make([]*websocket.Conn, 0, len(h.clients))
+				for c := range h.clients {
+					h.clientConns = append(h.clientConns, c)
+				}
+
 				delete(h.players, id) // Ideally persist before deleting, but we save regularly
 				log.Printf("Player disconnected: %s", id)
 			}
 			h.mutex.Unlock()
 
 		case msg := <-h.broadcast:
-			// Copy clients to avoid holding the mutex during blocking writes
+			// ⚡ Bolt Optimization: Use pre-allocated slice to avoid O(N) map copy and allocations during every broadcast tick
 			h.mutex.Lock()
-			clientsCopy := make(map[*websocket.Conn]string)
-			for conn, id := range h.clients {
-				clientsCopy[conn] = id
-			}
+			conns := h.clientConns
 			h.mutex.Unlock()
 
-			for conn, id := range clientsCopy {
+			for _, conn := range conns {
 				// Simple broadcast to all.
 				// In production, might want non-blocking or targeted.
 				// For now, this ensures things like Chat and Events work.
-				// Ignore errors for now or log them?
 				if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
 					log.Printf("Broadcast error: %v", err)
 					h.mutex.Lock()
 					conn.Close()
-					delete(h.clients, conn)
-					delete(h.players, id)
+					if id, ok := h.clients[conn]; ok {
+						delete(h.clients, conn)
+						// Rebuild copy-on-write slice
+						h.clientConns = make([]*websocket.Conn, 0, len(h.clients))
+						for c := range h.clients {
+							h.clientConns = append(h.clientConns, c)
+						}
+						delete(h.players, id)
+					}
 					h.mutex.Unlock()
 				}
 			}
