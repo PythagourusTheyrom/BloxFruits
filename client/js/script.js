@@ -365,7 +365,6 @@ window.addEventListener('keydown', (e) => {
         // Test Fruit Spawn
         if (fruitSystem && window.worldManager) {
             fruitSystem.spawnRandomFruit(window.worldManager.treePositions);
-            console.log("Manual Fruit Spawn Triggered");
         }
     }
 });
