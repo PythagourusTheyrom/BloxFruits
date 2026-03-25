@@ -864,6 +864,12 @@ func main() {
 		}
 	}))
 
+	// Rate Limiter for Auth Endpoints
+	authLimiter := limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 1 * time.Minute,
+	})
+
 	// Auth Endpoints
 	app.Post("/api/register", authLimiter, func(c *fiber.Ctx) error {
 		type RegisterRequest struct {
