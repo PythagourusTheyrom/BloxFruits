@@ -919,7 +919,11 @@ func main() {
 		}
 
 		// Generate Secure Token
-		token := generateSecureToken()
+		token, err := generateSecureToken()
+		if err != nil {
+			hub.mutex.Unlock()
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to generate token"})
+		}
 		hub.tokens[token] = guestID
 		hub.mutex.Unlock()
 
@@ -946,12 +950,10 @@ func main() {
 		}
 
 		// Generate secure token
-		_ = generateSecureToken()
-		tokenBytes := make([]byte, 32)
-		if _, err := rand.Read(tokenBytes); err != nil {
+		token, err := generateSecureToken()
+		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Failed to generate token"})
 		}
-		token := hex.EncodeToString(tokenBytes)
 
 		hub.mutex.Lock()
 		hub.tokens[token] = user.ID
@@ -1038,12 +1040,12 @@ func generateID() string {
 	return time.Now().Format("150405.000000") // Simple ID
 }
 
-func generateSecureToken() string {
-	b := make([]byte, 16)
+func generateSecureToken() (string, error) {
+	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
-		return generateID() // Fallback to semi-random ID if crypto/rand fails
+		return "", err
 	}
-	return hex.EncodeToString(b)
+	return hex.EncodeToString(b), nil
 }
 
 func getWeaponDamage(w string) int {
