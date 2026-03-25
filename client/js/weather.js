@@ -37,7 +37,6 @@ export class WeatherSystem {
     }
 
     setWeather(type) {
-        console.log("Weather changing to: " + type);
         this.currentWeather = type;
 
         if (type === 'Rain') {
