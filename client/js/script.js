@@ -918,9 +918,7 @@ function setupScene() {
 
     // Setup Systems
     physics = new Physics(scene);
-    physics = new Physics(scene);
     // gameState.floatingText replaced by SpeedR.FX
-    window.effects = new SpecialEffects(scene);
     window.effects = new SpecialEffects(scene);
 
     // Create Player
