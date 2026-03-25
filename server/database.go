@@ -91,7 +91,7 @@ func RegisterUser(username, password string) error {
 		MaxHealth: 100,
 		Team:      "neutral",
 		Money:     5000,
-		Inventory: []string{"melee"},
+		Inventory: NewInventory("melee"),
 		Luck:      1.0,
 	}
 	jsonData, _ := json.Marshal(defaultData)

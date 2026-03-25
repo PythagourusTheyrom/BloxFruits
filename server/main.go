@@ -29,17 +29,17 @@ type Player struct {
 	MaxEnergy int     `json:"maxEnergy"` // Added for completeness if needed logic
 
 	// Gameplay Stats
-	Team         string   `json:"team"`   // "marine" or "pirate"
-	Weapon       string   `json:"weapon"` // "katana", etc
-	Level        int      `json:"level"`
-	Exp          int      `json:"exp"`
-	Money        int      `json:"money"`
-	Bounty       int      `json:"bounty"`
-	Inventory    []string `json:"inventory"`
-	CurrentFruit string   `json:"currentFruit"`
-	Luck         float64  `json:"luck"`
-	ActiveQuest  *Quest   `json:"activeQuest"`
-	LastAttack   int64    `json:"-"`
+	Team         string     `json:"team"`   // "marine" or "pirate"
+	Weapon       string     `json:"weapon"` // "katana", etc
+	Level        int        `json:"level"`
+	Exp          int        `json:"exp"`
+	Money        int        `json:"money"`
+	Bounty       int        `json:"bounty"`
+	Inventory    *Inventory `json:"inventory"`
+	CurrentFruit string     `json:"currentFruit"`
+	Luck         float64    `json:"luck"`
+	ActiveQuest  *Quest     `json:"activeQuest"`
+	LastAttack   int64      `json:"-"`
 
 	MsgChan      chan []byte `json:"-"`
 	EquippedItem string      `json:"equipped"` // Redundant with Weapon but used in struct?
@@ -156,7 +156,7 @@ func (h *Hub) run() {
 						X:      0, Y: 3.5, Z: 0,
 						Health: 100, MaxHealth: 100,
 						Team:  "neutral",
-						Money: 5000, Inventory: []string{"melee"}, Luck: 1.0,
+						Money: 5000, Inventory: NewInventory("melee"), Luck: 1.0,
 					}
 				} else {
 					p.RoomID = roomID // Update room
@@ -457,7 +457,7 @@ func main() {
 					player.Team = input.Team
 				case "set_weapon":
 					// Verify ownership
-					if hasItem(player.Inventory, input.Weapon) || input.Weapon == "melee" {
+					if player.Inventory.Has(input.Weapon) || input.Weapon == "melee" {
 						player.Weapon = input.Weapon
 					}
 				case "roll_fruit":
@@ -471,7 +471,7 @@ func main() {
 						}
 
 						fruit := rollRandomFruit(playerLuck)
-						player.Inventory = append(player.Inventory, fruit)
+						player.Inventory.Add(fruit)
 
 						// Send Update
 						updateMsg, _ := json.Marshal(map[string]interface{}{
@@ -485,9 +485,9 @@ func main() {
 				case "buy_weapon":
 					price := getWeaponPrice(input.Item)
 					if price > 0 && player.Money >= price {
-						if !hasItem(player.Inventory, input.Item) {
+						if !player.Inventory.Has(input.Item) {
 							player.Money -= price
-							player.Inventory = append(player.Inventory, input.Item)
+							player.Inventory.Add(input.Item)
 
 							// Send Update
 							updateMsg, _ := json.Marshal(map[string]interface{}{
@@ -711,7 +711,7 @@ func main() {
 						targetID := target
 						itemName := input.Team // Reusing Team field for Item Name
 						if targetPlayer, ok := hub.players[targetID]; ok {
-							targetPlayer.Inventory = append(targetPlayer.Inventory, itemName)
+							targetPlayer.Inventory.Add(itemName)
 							// Notify Target
 							// We need to find their conn to send update, or just wait for next sync?
 							// Send stats update immediately
@@ -860,7 +860,7 @@ func main() {
 				Health: 100, MaxHealth: 100,
 				Team:      "neutral",
 				Money:     1000, // Starter money
-				Inventory: []string{"melee"},
+				Inventory: NewInventory("melee"),
 				Luck:      1.0,
 				Role:      "guest",
 			}
@@ -924,15 +924,6 @@ func main() {
 	})
 
 	log.Fatal(app.Listen(":" + port))
-}
-
-func hasItem(inv []string, item string) bool {
-	for _, i := range inv {
-		if i == item {
-			return true
-		}
-	}
-	return false
 }
 
 func rollRandomFruit(_ float64) string {
