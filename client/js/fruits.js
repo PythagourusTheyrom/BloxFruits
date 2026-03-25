@@ -1826,7 +1826,6 @@ export class FruitSystem {
                     );
                     const pos = playerMesh.position.clone().add(dir.clone().multiplyScalar((i + 1) * spacing));
                     spike.position.copy(pos);
-                    pivotY(spike); // helper function not avail? just set y
                     spike.position.y = -1; // Rise up
                     surgeGroup.add(spike);
                     p.spawnedCount++;
@@ -1842,8 +1841,6 @@ export class FruitSystem {
                 });
             }
         });
-
-        function pivotY(mesh) { } // Dummy
     }
 
     castDesertSword(playerMesh) {
