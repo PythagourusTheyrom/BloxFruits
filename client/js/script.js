@@ -336,7 +336,6 @@ window.joinLobby = function (id) {
 }
 
 function startSession(token, username, room) {
-    console.log("Starting Session... Hiding Login/Dashboard");
     gameState.room = room;
 
     const loginScreen = document.getElementById('login-screen');
