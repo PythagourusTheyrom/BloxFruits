@@ -24,8 +24,6 @@ export class InventorySystem {
             this.render();
             // Select newly added item if none selected?
             if (this.items.length === 1) this.selectSlot(0);
-        } else {
-            console.log("Inventory Full!");
         }
     }
 
