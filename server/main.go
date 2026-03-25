@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"sync"
 	"time"
 
@@ -877,6 +878,10 @@ func main() {
 			return c.Status(400).JSON(fiber.Map{"error": "Missing fields"})
 		}
 
+		if !isValidUsername(req.Username) {
+			return c.Status(400).JSON(fiber.Map{"error": "Invalid username. Must be 3-32 characters long and contain only alphanumeric characters and underscores."})
+		}
+
 		if err := RegisterUser(req.Username, req.Password); err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Could not register user"})
 		}
@@ -1046,6 +1051,16 @@ func generateSecureToken() (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(b), nil
+}
+
+var usernameRegex = regexp.MustCompile("^[a-zA-Z0-9_]+$")
+
+// isValidUsername validates the length and characters of a username
+func isValidUsername(username string) bool {
+	if len(username) < 3 || len(username) > 32 {
+		return false
+	}
+	return usernameRegex.MatchString(username)
 }
 
 func getWeaponDamage(w string) int {
