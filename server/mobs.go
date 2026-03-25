@@ -206,9 +206,11 @@ func (mm *MobManager) Update(deltaTime float64) {
 			// Move towards player
 			dx := closestPlayer.X - mob.X
 			dz := closestPlayer.Z - mob.Z
-			dist := math.Sqrt(dx*dx + dz*dz)
+			// ⚡ Bolt Optimization: Replace math.Sqrt with squared distance check for initial threshold
+			distSq := dx*dx + dz*dz
 
-			if dist > 1.5 { // Keep distance to attack
+			if distSq > 1.5*1.5 { // Keep distance to attack
+				dist := math.Sqrt(distSq)
 				dirX := dx / dist
 				dirZ := dz / dist
 
@@ -397,8 +399,10 @@ func (mm *MobManager) Update(deltaTime float64) {
 				if closestPlayer.Weapon == "Paw Fruit" {
 					dx := mob.X - closestPlayer.X
 					dz := mob.Z - closestPlayer.Z
-					mag := math.Sqrt(dx*dx + dz*dz)
-					if mag > 0 && mag < 4.0 { // Push if too close
+					// ⚡ Bolt Optimization: Replace math.Sqrt with squared distance check
+					magSq := dx*dx + dz*dz
+					if magSq > 0 && magSq < 4.0*4.0 { // Push if too close
+						mag := math.Sqrt(magSq)
 						dx /= mag
 						dz /= mag
 						mob.X += dx * 5.0 // Knockback
@@ -410,8 +414,10 @@ func (mm *MobManager) Update(deltaTime float64) {
 				if closestPlayer.Weapon == "Dark Fruit" {
 					dx := mob.X - closestPlayer.X
 					dz := mob.Z - closestPlayer.Z
-					mag := math.Sqrt(dx*dx + dz*dz)
-					if mag > 0 && mag < 10.0 && mag > 2.0 { // Pull if within 10 units but not too close
+					// ⚡ Bolt Optimization: Replace math.Sqrt with squared distance check
+					magSq := dx*dx + dz*dz
+					if magSq > 2.0*2.0 && magSq < 10.0*10.0 { // Pull if within 10 units but not too close
+						mag := math.Sqrt(magSq)
 						dx /= mag
 						dz /= mag
 						mob.X -= dx * 2.0 * deltaTime // Pull towards player
