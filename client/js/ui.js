@@ -37,7 +37,6 @@ export class InventorySystem {
         const item = this.items[index];
         if (item) {
             // Equip Logic
-            console.log(`Equipping ${item}`);
             // Send to server
             if (window.socket && window.socket.readyState === WebSocket.OPEN) {
                 window.socket.send(JSON.stringify({
