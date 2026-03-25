@@ -13,6 +13,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/websocket/v2"
 )
 
@@ -415,6 +416,20 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:3000",
 	})) // Enable restricted CORS
+
+	// Rate limiter for authentication endpoints (5 requests per minute)
+	authLimiter := limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 1 * time.Minute,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.IP()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
+				"error": "Too many requests. Please try again later.",
+			})
+		},
+	})
 
 	hub := newHub()
 	go hub.run()
@@ -849,7 +864,7 @@ func main() {
 	}))
 
 	// Auth Endpoints
-	app.Post("/api/register", func(c *fiber.Ctx) error {
+	app.Post("/api/register", authLimiter, func(c *fiber.Ctx) error {
 		type RegisterRequest struct {
 			Username string `json:"username"`
 			Password string `json:"password"`
@@ -869,7 +884,7 @@ func main() {
 		return c.JSON(fiber.Map{"status": "success"})
 	})
 
-	app.Post("/api/guest", func(c *fiber.Ctx) error {
+	app.Post("/api/guest", authLimiter, func(c *fiber.Ctx) error {
 		// Generate Guest ID
 		guestID := fmt.Sprintf("Guest_%d", time.Now().UnixNano()%10000)
 
@@ -915,7 +930,7 @@ func main() {
 		})
 	})
 
-	app.Post("/api/login", func(c *fiber.Ctx) error {
+	app.Post("/api/login", authLimiter, func(c *fiber.Ctx) error {
 		type LoginRequest struct {
 			Username string `json:"username"`
 			Password string `json:"password"`
