@@ -280,6 +280,36 @@ body {
     color: #aaa;
 }
 
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    color: white;
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+    transform: scale(1.1);
+}
+
+.close-btn:focus-visible {
+    outline: 2px solid #00c6ff;
+    outline-offset: 2px;
+}
+
 /* Dialog UI */
 #dialog-ui {
     position: absolute;
@@ -559,6 +589,11 @@ body {
     transform: translateY(-2px);
 }
 
+.auth-tab:focus-visible {
+    outline: 2px solid #00c6ff;
+    outline-offset: 2px;
+}
+
 .input-group {
     position: relative;
     margin-bottom: 20px;
@@ -581,6 +616,11 @@ body {
     border-color: #00c6ff;
     box-shadow: 0 0 15px rgba(0, 198, 255, 0.2);
     transform: scale(1.02);
+}
+
+.input-group input:focus-visible {
+    outline: 2px solid #00c6ff;
+    outline-offset: 2px;
 }
 
 .input-group input::placeholder {
@@ -644,6 +684,11 @@ body {
 .neon-btn.primary:hover {
     box-shadow: 0 15px 30px rgba(0, 114, 255, 0.5);
     transform: translateY(-3px);
+}
+
+.neon-btn:focus-visible {
+    outline: 2px solid #00c6ff;
+    outline-offset: 4px;
 }
 
 .neon-btn.secondary {
