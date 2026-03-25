@@ -530,6 +530,7 @@ func main() {
 					hub.MobManager.mutex.Lock()
 					if mob, ok := hub.MobManager.Mobs[mobID]; ok {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
+						// and removing math.Sqrt by comparing squared distances.
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
@@ -570,6 +571,7 @@ func main() {
 					victim, ok := hub.players[victimID]
 					if ok {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
+						// and removing math.Sqrt by comparing squared distances.
 						dx := victim.X - player.X
 						dz := victim.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
@@ -604,6 +606,7 @@ func main() {
 					hub.MobManager.mutex.Lock()
 					if mob, ok := hub.MobManager.Mobs[mobID]; ok {
 						// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
+						// and removing math.Sqrt by comparing squared distances.
 						dx := mob.X - player.X
 						dz := mob.Z - player.Z
 						// Use direct multiplication instead of math.Pow for performance
@@ -757,6 +760,7 @@ func main() {
 						pX, pZ := player.X, player.Z
 						for _, mob := range hub.MobManager.Mobs {
 							// ⚡ Bolt Optimization: Replacing math.Pow(x, 2) with x*x for faster range calculations
+							// and removing math.Sqrt by comparing squared distances.
 							dx := mob.X - pX
 							dz := mob.Z - pZ
 							// Use direct multiplication instead of math.Pow for performance

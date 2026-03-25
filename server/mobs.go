@@ -439,13 +439,17 @@ func (mm *MobManager) Update(deltaTime float64) {
 				// Return to spawn
 				dx := mob.spawnX - mob.X
 				dz := mob.spawnZ - mob.Z
-				dist := math.Sqrt(dx*dx + dz*dz)
+				distSq := dx*dx + dz*dz
 
-				dirX := dx / dist
-				dirZ := dz / dist
+				// ⚡ Bolt Optimization: Avoid division by zero and only calc sqrt for movement
+				if distSq > 0 {
+					dist := math.Sqrt(distSq)
+					dirX := dx / dist
+					dirZ := dz / dist
 
-				mob.X += dirX * (mob.Speed * 0.5) * deltaTime
-				mob.Z += dirZ * (mob.Speed * 0.5) * deltaTime
+					mob.X += dirX * (mob.Speed * 0.5) * deltaTime
+					mob.Z += dirZ * (mob.Speed * 0.5) * deltaTime
+				}
 			}
 		}
 	}
