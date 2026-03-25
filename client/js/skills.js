@@ -6,8 +6,6 @@ export class SkillSystem {
     }
 
     castSkill(key) {
-        console.log("Casting Skill: " + key);
-
         const origin = this.playerMesh.position.clone();
         origin.y += 1;
 
