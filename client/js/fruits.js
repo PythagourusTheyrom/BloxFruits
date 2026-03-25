@@ -62,8 +62,6 @@ export class FruitSystem {
                 mesh.position.y = 1 + Math.sin(Date.now() * 0.002) * 0.2; // Float
             }
         });
-
-        console.log(`Spawned ${type} at ${x}, ${z}`);
     }
 
     spawnRandomFruit(locations) {
