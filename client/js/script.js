@@ -150,6 +150,10 @@ window.handleAuth = async function () {
 
     msg.innerText = "";
     if (spinner) spinner.classList.remove('hidden');
+    const authBtn = document.getElementById('auth-btn');
+    const guestBtn = document.querySelector('.guest-btn');
+    if (authBtn) authBtn.disabled = true;
+    if (guestBtn) guestBtn.disabled = true;
 
     try {
         if (isOfflineMode) {
@@ -211,6 +215,9 @@ window.handleAuth = async function () {
         msg.style.color = '#ff3333';
         console.error(e);
         if (spinner) spinner.classList.add('hidden');
+    } finally {
+        if (authBtn) authBtn.disabled = false;
+        if (guestBtn) guestBtn.disabled = false;
     }
 };
 
@@ -222,6 +229,10 @@ window.handleGuestAuth = async function () {
     msg.innerText = "Creating Guest Account...";
     msg.style.color = '#00c6ff';
     if (spinner) spinner.classList.remove('hidden');
+    const authBtn = document.getElementById('auth-btn');
+    const guestBtn = document.querySelector('.guest-btn');
+    if (authBtn) authBtn.disabled = true;
+    if (guestBtn) guestBtn.disabled = true;
 
     try {
         if (isOfflineMode) {
@@ -253,6 +264,8 @@ window.handleGuestAuth = async function () {
         console.error(e);
     } finally {
         if (spinner) spinner.classList.add('hidden');
+        if (authBtn) authBtn.disabled = false;
+        if (guestBtn) guestBtn.disabled = false;
     }
 }
 
