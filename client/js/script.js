@@ -407,8 +407,6 @@ window.adminAction = function (action) {
         weapon: target,        // Target ID
         team: itemValue        // Extra value (Item Name)
     }));
-
-    console.log(`Admin Action: ${action} -> ${target} (${itemValue})`);
 }
 
 // Chat Logic
@@ -928,7 +926,7 @@ function setupScene() {
     window.effects = new SpecialEffects(scene);
 
     // Create Player
-    const playerColor = 0x00ff00; // Default or Team Color
+    let playerColor = 0x00ff00; // Default or Team Color
     const team = 'marine'; // Default
     if (team === 'marine') playerColor = 0x0072ff;
     // ... we don't know team yet, wait for spawn.
