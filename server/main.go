@@ -220,7 +220,6 @@ func (h *Hub) run() {
 				if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
 					log.Printf("Broadcast failed: %v", err)
 					h.mutex.Lock()
-					id := h.clients[conn]
 					conn.Close()
 					if id, ok := h.clients[conn]; ok {
 						delete(h.clients, conn)
@@ -585,7 +584,7 @@ func main() {
 							maxRangeSq = 6400.0 // 80.0^2
 						}
 
-						if distSq > maxRange*maxRange {
+						if distSq > maxRangeSq {
 							hub.MobManager.mutex.Unlock()
 							continue // Out of range
 						}
@@ -620,11 +619,11 @@ func main() {
 						// Use direct multiplication instead of math.Pow for performance
 						// ⚡ Bolt Optimization: Replace math.Sqrt with squared distance check
 						distSq := dx*dx + dz*dz
-						maxRange := 15.0
+						maxRangeSq := 225.0
 						if player.Weapon == "bazooka" || player.Weapon == "slingshot" {
 							maxRangeSq = 6400.0 // 80.0^2
 						}
-						if distSq > maxRange*maxRange {
+						if distSq > maxRangeSq {
 							hub.mutex.Unlock()
 							continue
 						}
@@ -809,7 +808,7 @@ func main() {
 							// Use direct multiplication instead of math.Pow for performance
 							// ⚡ Bolt Optimization: Replace math.Sqrt with squared distance check
 							distSq := dx*dx + dz*dz
-							if distSq <= hakiRange*hakiRange {
+							if distSq <= hakiRangeSq {
 								mob.State = StateStunned
 								mob.StunEnd = now + int64(stunDuration*1000)
 							}
@@ -865,7 +864,7 @@ func main() {
 	}))
 
 	// Rate Limiter for Auth Endpoints
-	authLimiter := limiter.New(limiter.Config{
+	authLimiter = limiter.New(limiter.Config{
 		Max:        5,
 		Expiration: 1 * time.Minute,
 	})
