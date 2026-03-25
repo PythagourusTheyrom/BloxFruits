@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
@@ -142,20 +143,42 @@ func SaveUsersBatch(playerData map[string]string) error {
 	if err != nil {
 		return err
 	}
-	stmt, err := tx.Prepare("UPDATE users SET data = ? WHERE username = ?")
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	defer stmt.Close()
 
-	for id, data := range playerData {
-		_, err = stmt.Exec(data, id)
-		if err != nil {
-			tx.Rollback()
-			return err
+	chunkSize := 499 // max variables limit in sqlite is 999
+	var sb strings.Builder
+	sb.Grow(1000)
+	args := make([]interface{}, 0, chunkSize*2)
+
+	count := 0
+	totalCount := 0
+	for username, data := range playerData {
+		if count == 0 {
+			sb.Reset()
+			args = args[:0]
+			sb.WriteString("WITH new_data(username, data) AS (VALUES ")
+		}
+
+		if count > 0 {
+			sb.WriteString(", (?, ?)")
+		} else {
+			sb.WriteString("(?, ?)")
+		}
+		args = append(args, username, data)
+
+		count++
+		totalCount++
+
+		if count == chunkSize || totalCount == len(playerData) {
+			sb.WriteString(" ON CONFLICT(username) DO UPDATE SET data=excluded.data")
+			_, err = tx.Exec(sb.String(), args...)
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+			count = 0
 		}
 	}
+
 	return tx.Commit()
 }
 
