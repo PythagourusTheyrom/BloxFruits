@@ -1,6 +1,7 @@
-
 import './globals.js';
 import { SpeedR } from './SpeedR.js';
+
+
 import { Physics } from './physics.js';
 import { Combat } from './combat.js';
 import { FruitSystem } from './fruits.js';
@@ -22,6 +23,10 @@ import { DayNightCycle } from './day_night.js';
 import { ZoneSystem } from './zones.js';
 import { WorldManager } from './world.js';
 import { ParticleSystem } from './particles.js';
+
+// ⚡ Bolt Optimization: Reuse Vector3 to prevent object instantiation in hot loops
+const _reusableVec = new THREE.Vector3();
+
 
 function log(msg) {
     const d = document.getElementById('debug-console');
@@ -161,7 +166,6 @@ window.handleAuth = async function () {
         let baseUrl = "";
 
         const endpoint = baseUrl + (authMode === 'login' ? '/api/login' : '/api/register');
-        const endpoint = (authMode === 'login' ? '/api/login' : '/api/register');
         const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -232,7 +236,6 @@ window.handleGuestAuth = async function () {
         let baseUrl = "";
 
         const res = await fetch(baseUrl + '/api/guest', { method: 'POST' });
-        const res = await fetch('/api/guest', { method: 'POST' });
         const data = await res.json();
 
         if (!res.ok) {
@@ -767,7 +770,7 @@ function updateMobs(mobsData) {
             }
 
             m.data = mData; // Update ref
-            m.mesh.position.lerp(new THREE.Vector3(mData.x, mData.y, mData.z), 0.1);
+            m.mesh.position.lerp(_reusableVec.set(mData.x, mData.y, mData.z), 0.1);
         }
     }
 
@@ -827,7 +830,7 @@ function updateWorldState(serverPlayers) {
             // Update Existing
             const p = gameState.players[id];
             // Lerp Position
-            p.mesh.position.lerp(new THREE.Vector3(pData.x, pData.y, pData.z), 0.1); // Use pData.y directly
+            p.mesh.position.lerp(_reusableVec.set(pData.x, pData.y, pData.z), 0.1); // Use pData.y directly
 
             // Sync Rotation
             // (If we had it in pData)
