@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"math"
+	"math/rand"
 	"sync"
 	"time"
 
@@ -139,7 +140,8 @@ func (mm *MobManager) Update(deltaTime float64) {
 		if now < mob.PoisonEnd {
 			// Take DoT (every ~1s? or every tick?)
 			// Every tick is too fast. Let's use random chance again for "tickrate"
-			if math.Sin(float64(now)) > 0.8 {
+			// ⚡ Bolt Optimization: Using math/rand instead of math.Sin(time) to reduce CPU overhead
+			if rand.Float64() < 0.2 {
 				mob.Health -= 2
 			}
 		}
@@ -293,7 +295,7 @@ func (mm *MobManager) Update(deltaTime float64) {
 				// Let's keep it simple: If close, player takes minimal damage over time?
 				// Or just frame-perfect damage (dangerous).
 				// Let's add a random chance to hit per tick (poor man's cooldown)
-				if math.Sin(float64(time.Now().UnixMilli())) > 0.9 {
+				if rand.Float64() < 0.1 {
 					mm.hub.mutex.Lock()
 
 					// Rubber Immunity (Feature 5)
@@ -309,7 +311,7 @@ func (mm *MobManager) Update(deltaTime float64) {
 
 					// Rumble Stun Proc (Feature 15)
 					if closestPlayer.Weapon == "Rumble Fruit" {
-						if math.Sin(float64(now)+1.0) > 0.8 { // Random chance
+						if rand.Float64() < 0.2 { // Random chance
 							mob.State = StateCharmed // Reuse charmed state for stun
 							mob.StunEnd = now + 2000 // 2s Stun
 						}
@@ -337,7 +339,7 @@ func (mm *MobManager) Update(deltaTime float64) {
 
 						// String Trap (Feature 20)
 						if closestPlayer.Weapon == "String Fruit" {
-							if math.Sin(float64(now)) > 0.6 {
+							if rand.Float64() < 0.4 {
 								mob.StunEnd = now + 1500
 								mob.State = StateCharmed
 							}
@@ -364,7 +366,7 @@ func (mm *MobManager) Update(deltaTime float64) {
 
 						// Smoke Dodge (Feature 26)
 						if closestPlayer.Weapon == "Smoke Fruit" {
-							if math.Sin(float64(now)) > 0.0 { // 50% chance to dodge
+							if rand.Float64() < 0.5 { // 50% chance to dodge
 								damage = 0
 							}
 						}
@@ -388,7 +390,7 @@ func (mm *MobManager) Update(deltaTime float64) {
 
 						// Sand Trap (Feature 30)
 						if closestPlayer.Weapon == "Sand Fruit" {
-							if math.Sin(float64(now)) > 0.5 {
+							if rand.Float64() < 0.25 {
 								mob.StunEnd = now + 1000 // 1s Stun
 							}
 						}
