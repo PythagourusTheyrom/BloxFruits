@@ -229,7 +229,7 @@ func (mm *MobManager) Update(deltaTime float64) {
 				if mob.IsBoss && mob.Type == "Ice Admiral" {
 					if now > mob.AbilityCD {
 						// Range Check (e.g. 15 units)
-						if dist < 15.0 {
+						if distSq < 225.0 { // 15^2
 							// Cast Ability
 							mob.AbilityCD = now + 5000 // 5s Cooldown
 

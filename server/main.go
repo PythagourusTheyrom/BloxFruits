@@ -555,9 +555,9 @@ func main() {
 						// ⚡ Bolt Optimization: Replace math.Sqrt with squared distance check
 						distSq := dx*dx + dz*dz
 						// Weapon Range
-						maxRange := 15.0 // Melee/Sword
+						maxRangeSq := 225.0 // 15.0^2 Melee/Sword
 						if player.Weapon == "bazooka" || player.Weapon == "slingshot" {
-							maxRange = 80.0
+							maxRangeSq = 6400.0 // 80.0^2
 						}
 
 						if distSq > maxRange*maxRange {
@@ -597,7 +597,7 @@ func main() {
 						distSq := dx*dx + dz*dz
 						maxRange := 15.0
 						if player.Weapon == "bazooka" || player.Weapon == "slingshot" {
-							maxRange = 80.0
+							maxRangeSq = 6400.0 // 80.0^2
 						}
 						if distSq > maxRange*maxRange {
 							hub.mutex.Unlock()
@@ -760,8 +760,8 @@ func main() {
 						}
 					case "use_haki_conqueror":
 						// Range Check
-						hakiRange := 20.0
-						stunDuration := 5.0 // Seconds
+						hakiRangeSq := 400.0 // 20.0^2
+						stunDuration := 5.0  // Seconds
 
 						// Broadcast Visuals
 						broadcastMsg := map[string]interface{}{
