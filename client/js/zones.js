@@ -1,11 +1,12 @@
-constructor(scene) {
-    this.scene = scene;
-    this.zones = [];
-    this.currentZone = "Ocean";
-    this.setupUI();
-}
+export class ZoneSystem {
+    constructor(scene) {
+        this.scene = scene;
+        this.zones = [];
+        this.currentZone = "Ocean";
+        this.setupUI();
+    }
 
-setupUI() {
+    setupUI() {
     // Create Zone Banner if it doesn't exist
     if (!document.getElementById('zone-banner')) {
         const div = document.createElement('div');

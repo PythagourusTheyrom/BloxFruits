@@ -1047,46 +1047,6 @@ function setupScene() {
     }
 
 }
-gameState.lastMove = now;
-
-// Remove the misplaced `if (intersects.length > 0)` block from here
-// It seems to be part of a different function or was incorrectly placed.
-// The instruction implies it should be outside `updatePlayer` or in a different context.
-// For now, I'll assume it was a remnant and the user wants to restore the collision/camera logic.
-// If it was meant to be inside updatePlayer, the instruction would have placed it differently.
-
-// The following block was originally after the closing brace of updatePlayer.
-// I will keep it in its original relative position, outside updatePlayer.
-if (intersects.length > 0) {
-    // Find the root object with userData
-    let obj = intersects[0].object;
-    while (obj.parent && (!obj.userData || !obj.userData.id)) {
-        obj = obj.parent;
-    }
-
-    if (obj.userData) {
-        const dist = myPlayerMesh.position.distanceTo(obj.position);
-        if (dist < 8) { // Melee Range
-            if (obj.userData.type === "mob") {
-                socket.send(JSON.stringify({
-                    type: 'mob_hit',
-                    item: obj.userData.id
-                }));
-                // Visual Feedback
-                window.hitSystem = window.hitSystem || new HitSystem(scene);
-                window.hitSystem.showDamage(obj.position.clone().add(new THREE.Vector3(0, 2, 0)), 10);
-            } else if (obj.userData.type === "player") {
-                socket.send(JSON.stringify({
-                    type: 'player_hit',
-                    item: obj.userData.id
-                }));
-                // Visual Feedback
-                window.hitSystem = window.hitSystem || new HitSystem(scene);
-                window.hitSystem.showDamage(obj.position.clone().add(new THREE.Vector3(0, 2, 0)), 10);
-            }
-        }
-    }
-}
 
 
 // Skill keys
