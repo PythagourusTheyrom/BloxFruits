@@ -897,7 +897,12 @@ func main() {
 
 	app.Post("/api/guest", authLimiter, func(c *fiber.Ctx) error {
 		// Generate Guest ID
-		guestID := fmt.Sprintf("Guest_%d", time.Now().UnixNano()%10000)
+		// Generate Guest ID
+		guestBytes := make([]byte, 8)
+		if _, err := rand.Read(guestBytes); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to generate guest ID"})
+		}
+		guestID := fmt.Sprintf("Guest_%s", hex.EncodeToString(guestBytes))
 
 		// Create Guest User (No password needed for now, or use dummy)
 		// We can reuse RegisterUser but we need to bypass password check for login?
