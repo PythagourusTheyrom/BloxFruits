@@ -430,8 +430,12 @@ func (mm *MobManager) Update(deltaTime float64) {
 		} else {
 			// Wander or Return to Spawn
 			mob.State = StateIdle
-			distToSpawn := distance(mob.X, mob.Z, mob.spawnX, mob.spawnZ)
-			if distToSpawn > 1.0 {
+			dxSpawn := mob.X - mob.spawnX
+			dzSpawn := mob.Z - mob.spawnZ
+			distToSpawnSq := dxSpawn*dxSpawn + dzSpawn*dzSpawn
+
+			// ⚡ Bolt Optimization: Replacing math.Sqrt for distance comparisons with squared distance checks to save CPU cycles
+			if distToSpawnSq > 1.0 { // 1.0 * 1.0
 				// Return to spawn
 				dx := mob.spawnX - mob.X
 				dz := mob.spawnZ - mob.Z
