@@ -191,7 +191,7 @@ body {
 
 .money-hud {
     position: absolute;
-    top: 150px;
+    top: 280px;
     /* Below stats */
     left: 20px;
     font-size: 1.5rem;
