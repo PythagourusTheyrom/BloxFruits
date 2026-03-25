@@ -34,7 +34,6 @@ function log(msg) {
         d.appendChild(document.createTextNode(msg));
         d.appendChild(document.createElement('br'));
     }
-    console.log(msg);
 }
 window.onerror = function (msg, url, line) {
     const d = document.getElementById('debug-console');
