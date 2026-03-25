@@ -88,8 +88,6 @@ export class FruitSystem {
     }
 
     useAbility(playerMesh, fruitName, key) {
-        console.log(`Using ${fruitName} ability: ${key}`);
-
         if (fruitName === "Flame Fruit" && key === "Z") {
             this.castFireball(playerMesh);
         } else if (fruitName === "Flame Fruit" && key === "X") {
