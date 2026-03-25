@@ -54,17 +54,17 @@
                         <button id="tab-register" class="auth-tab" onclick="switchAuth('register')">REGISTER</button>
                     </div>
 
-                    <div class="auth-content">
+                    <form id="auth-form" class="auth-content" onsubmit="event.preventDefault(); handleAuth();">
                         <div class="input-group">
                             <i class="icon-user"></i>
-                            <input type="text" id="username-input" placeholder="Username" aria-label="Username" maxlength="20">
+                            <input type="text" id="username-input" placeholder="Username" aria-label="Username" maxlength="20" required>
                         </div>
                         <div class="input-group">
                             <i class="icon-lock"></i>
-                            <input type="password" id="password-input" placeholder="Password" aria-label="Password" maxlength="50">
+                            <input type="password" id="password-input" placeholder="Password" aria-label="Password" maxlength="50" required>
                         </div>
 
-                        <button id="auth-btn" class="neon-btn primary" onclick="handleAuth()">
+                        <button type="submit" id="auth-btn" class="neon-btn primary">
                             LOGIN TO PLAY
                         </button>
 
@@ -72,10 +72,10 @@
                             <span>OR</span>
                         </div>
 
-                        <button class="neon-btn secondary guest-btn" onclick="handleGuestAuth()">
+                        <button type="button" class="neon-btn secondary guest-btn" onclick="handleGuestAuth()">
                             PLAY AS GUEST
                         </button>
-                    </div>
+                    </form>
 
                     <div id="loading-spinner" class="spinner hidden"></div>
                     <p id="auth-msg" class="status-msg" aria-live="polite"></p>
