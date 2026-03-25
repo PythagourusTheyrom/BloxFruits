@@ -56,7 +56,7 @@ if (isOfflineMode) {
 
 
 // Game State
-let gameState = {
+export let gameState = {
     myID: null,
     room: null, // New field for Lobby
     players: {},
@@ -109,7 +109,7 @@ window.switchAuth = function (mode) {
     if (msg) msg.innerText = "";
 }
 
-function updateUI() {
+export function updateUI() {
     const p = gameState.player;
     const hpBar = document.getElementById('hp-bar');
     if (hpBar) hpBar.style.width = (p.health / p.maxHealth * 100) + "%";
@@ -145,9 +145,12 @@ function updateUI() {
     if (bDisplay) bDisplay.innerText = "Bounty: " + (p.bounty || 0);
 
     // Call secondary updates
-    if (typeof updateSecondaryUI === 'function') updateSecondaryUI();
+    if (typeof window.updateSecondaryUI === 'function') window.updateSecondaryUI();
+    else if (typeof updateSecondaryUI === 'function') updateSecondaryUI();
+
     // Quest UI is updated via events, but good to check
-    if (typeof updateQuestUI === 'function') updateQuestUI();
+    if (typeof window.updateQuestUI === 'function') window.updateQuestUI();
+    else if (typeof updateQuestUI === 'function') updateQuestUI();
 }
 
 window.handleAuth = async function () {
