@@ -385,7 +385,6 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'k') {
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({ type: 'kill_mob', item: 'Gorilla' }));
-            console.log("Simulated Mob Kill");
         }
     }
     if (e.key === 'l') {
