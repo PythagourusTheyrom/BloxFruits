@@ -151,7 +151,6 @@ function updateUI() {
 }
 
 window.handleAuth = async function () {
-    console.log("handleAuth clicked");
     const username = document.getElementById('username-input').value.trim();
     const password = document.getElementById('password-input').value.trim();
     const msg = document.getElementById('auth-msg');
