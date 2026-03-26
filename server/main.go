@@ -378,6 +378,8 @@ func (h *Hub) saveData() {
 	}
 }
 
+const MaxChatLength = 200
+
 // Input message from client
 type InputMessage struct {
 	Type   string  `json:"type"`
@@ -817,6 +819,10 @@ func main() {
 
 					case "chat":
 						msgContent := input.Item
+						runes := []rune(msgContent)
+						if len(runes) > MaxChatLength {
+							msgContent = string(runes[:MaxChatLength])
+						}
 						chatMsg := map[string]interface{}{
 							"type": "chat",
 							"id":   player.ID,
