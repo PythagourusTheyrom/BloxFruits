@@ -10,3 +10,7 @@
 **Vulnerability:** Sensitive authentication endpoints (`/api/register`, `/api/login`, `/api/guest`) lacked rate limiting.
 **Learning:** This missing protection could allow brute-force attacks or Denial of Service (DoS) by spamming these endpoints, bypassing authentication mechanisms. Rate limits for sensitive endpoints should be implemented by default to protect user security and application stability.
 **Prevention:** Always implement a rate limiter on endpoints that involve user authentication, token generation, or sensitive actions. Use standard middleware, such as `github.com/gofiber/fiber/v2/middleware/limiter`, to easily achieve this.
+## 2024-05-24 - [MEDIUM] Missing chat length limit
+**Vulnerability:** The application was missing a maximum length limit for chat messages.
+**Learning:** This missing limitation could lead to Denial of Service (DoS) attacks by allowing malicious users to send extremely large messages, exhausting server memory and bandwidth and crashing clients. It is crucial to limit the size of user-provided data, especially in high-frequency realtime channels like WebSockets.
+**Prevention:** Always enforce a maximum length limit on all user-provided data, especially on WebSocket channels, before processing or broadcasting the data.
