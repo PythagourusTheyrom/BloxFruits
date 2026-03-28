@@ -15,6 +15,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/helmet/v2"
 	"github.com/gofiber/websocket/v2"
 )
 
@@ -413,6 +414,10 @@ func main() {
 	}
 
 	app := fiber.New()
+
+	// Add security headers
+	app.Use(helmet.New())
+
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:3000",
 	})) // Enable restricted CORS
