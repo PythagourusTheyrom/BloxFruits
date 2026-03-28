@@ -159,6 +159,7 @@ window.handleAuth = async function () {
     const msg = document.getElementById('auth-msg');
     const spinner = document.getElementById('loading-spinner');
     const authBtn = document.getElementById('auth-btn');
+    const guestBtn = document.querySelector('.guest-btn');
 
     if (!username || !password) {
         msg.innerText = "Please enter username and password.";
@@ -167,8 +168,6 @@ window.handleAuth = async function () {
 
     msg.innerText = "";
     if (spinner) spinner.classList.remove('hidden');
-    const authBtn = document.getElementById('auth-btn');
-    const guestBtn = document.querySelector('.guest-btn');
     if (authBtn) authBtn.disabled = true;
     if (guestBtn) guestBtn.disabled = true;
 
@@ -242,8 +241,14 @@ window.handleAuth = async function () {
         console.error(e);
         if (spinner) spinner.classList.add('hidden');
     } finally {
-        if (authBtn) authBtn.disabled = false;
-        if (guestBtn) guestBtn.disabled = false;
+        if (authBtn) {
+            authBtn.disabled = false;
+            authBtn.textContent = authMode === 'login' ? 'LOGIN TO PLAY' : 'REGISTER & PLAY';
+        }
+        if (guestBtn) {
+            guestBtn.disabled = false;
+            guestBtn.textContent = 'PLAY AS GUEST';
+        }
     }
 };
 
@@ -252,14 +257,12 @@ window.handleGuestAuth = async function () {
     const msg = document.getElementById('auth-msg');
     const spinner = document.getElementById('loading-spinner');
     const guestBtn = document.querySelector('.guest-btn');
+    const authBtn = document.getElementById('auth-btn');
 
     msg.innerText = "Creating Guest Account...";
     msg.style.color = '#00c6ff';
     if (spinner) spinner.classList.remove('hidden');
-    const authBtn = document.getElementById('auth-btn');
-    const guestBtn = document.querySelector('.guest-btn');
     if (authBtn) authBtn.disabled = true;
-    if (guestBtn) guestBtn.disabled = true;
 
     if (guestBtn) {
         guestBtn.disabled = true;
@@ -296,8 +299,14 @@ window.handleGuestAuth = async function () {
         console.error(e);
     } finally {
         if (spinner) spinner.classList.add('hidden');
-        if (authBtn) authBtn.disabled = false;
-        if (guestBtn) guestBtn.disabled = false;
+        if (authBtn) {
+            authBtn.disabled = false;
+            authBtn.textContent = authMode === 'login' ? 'LOGIN TO PLAY' : 'REGISTER & PLAY';
+        }
+        if (guestBtn) {
+            guestBtn.disabled = false;
+            guestBtn.textContent = 'PLAY AS GUEST';
+        }
     }
 }
 
