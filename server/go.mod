@@ -6,6 +6,7 @@ toolchain go1.24.3
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.11
+	github.com/gofiber/helmet/v2 v2.2.26
 	github.com/gofiber/websocket/v2 v2.2.1
 	github.com/mattn/go-sqlite3 v1.14.33
 	golang.org/x/crypto v0.47.0
