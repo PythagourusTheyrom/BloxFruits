@@ -96,6 +96,16 @@ func (mm *MobManager) SpawnMob(id, mobType string, x, z float64) {
 	}
 }
 
+// ⚡ Bolt Optimization: Fast float to int floor without math.Floor overhead
+// Avoids function call overhead and handles negative numbers correctly.
+func fastFloor(val float64) int {
+	i := int(val)
+	if val < 0 && float64(i) != val {
+		return i - 1
+	}
+	return i
+}
+
 func (mm *MobManager) Update(deltaTime float64) {
 	mm.mutex.Lock()
 	defer mm.mutex.Unlock()
@@ -115,8 +125,8 @@ func (mm *MobManager) Update(deltaTime float64) {
 		if isSafeZone(p.X, p.Z) {
 			continue
 		}
-		cx := int(math.Floor(p.X / cellSize))
-		cz := int(math.Floor(p.Z / cellSize))
+		cx := fastFloor(p.X / cellSize)
+		cz := fastFloor(p.Z / cellSize)
 		grid[cellKey{cx, cz}] = append(grid[cellKey{cx, cz}], p)
 	}
 	mm.hub.mutex.Unlock()
@@ -150,8 +160,8 @@ func (mm *MobManager) Update(deltaTime float64) {
 		// ⚡ Bolt Optimization: Use squared distance to avoid expensive math.Sqrt calls during detection loop
 		minDistSq := 15.0 * 15.0 // Detection radius squared
 
-		mobCx := int(math.Floor(mob.X / cellSize))
-		mobCz := int(math.Floor(mob.Z / cellSize))
+		mobCx := fastFloor(mob.X / cellSize)
+		mobCz := fastFloor(mob.Z / cellSize)
 
 		mm.hub.mutex.Lock()
 		for dx := -1; dx <= 1; dx++ {
@@ -166,7 +176,8 @@ func (mm *MobManager) Update(deltaTime float64) {
 					// Let's rely on randomness to throttle or add a BurnTimer.
 					// Random 5% chance per tick (20 ticks/sec -> 1 hit/sec avg)
 					if p.Weapon == "Magma Fruit" && distSq < 64.0 { // 8.0 squared
-						if math.Sin(float64(now)) > 0.95 { // Simple random throttle
+						// ⚡ Bolt Optimization: Replace math.Sin with rand.Float64() to reduce CPU overhead
+						if rand.Float64() < 0.05 { // Random chance to hit
 							mob.Health -= 5
 							// Don't kill implicitly here without rewards?
 							// Let's just reduce health. If it dies, the next handleMobDamage check will fail?
