@@ -10,3 +10,7 @@
 **Vulnerability:** Sensitive authentication endpoints (`/api/register`, `/api/login`, `/api/guest`) lacked rate limiting.
 **Learning:** This missing protection could allow brute-force attacks or Denial of Service (DoS) by spamming these endpoints, bypassing authentication mechanisms. Rate limits for sensitive endpoints should be implemented by default to protect user security and application stability.
 **Prevention:** Always implement a rate limiter on endpoints that involve user authentication, token generation, or sensitive actions. Use standard middleware, such as `github.com/gofiber/fiber/v2/middleware/limiter`, to easily achieve this.
+## 2024-05-24 - [MEDIUM] Missing HTTP Security Headers
+**Vulnerability:** The application was not setting basic HTTP security headers, leaving it vulnerable to various attacks like clickjacking (missing X-Frame-Options) and MIME-type sniffing (missing X-Content-Type-Options).
+**Learning:** Default Fiber applications do not include security headers out of the box. Modern applications should always set these headers to provide defense-in-depth against common client-side vulnerabilities.
+**Prevention:** Always use a security header middleware, such as `github.com/gofiber/helmet/v2`, to automatically configure standard HTTP security headers for all endpoints and static files.
