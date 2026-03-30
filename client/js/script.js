@@ -167,15 +167,12 @@ window.handleAuth = async function () {
 
     msg.innerText = "";
     if (spinner) spinner.classList.remove('hidden');
-    const authBtn = document.getElementById('auth-btn');
     const guestBtn = document.querySelector('.guest-btn');
-    if (authBtn) authBtn.disabled = true;
-    if (guestBtn) guestBtn.disabled = true;
-
     if (authBtn) {
         authBtn.disabled = true;
         authBtn.textContent = authMode === 'login' ? 'LOGGING IN...' : 'REGISTERING...';
     }
+    if (guestBtn) guestBtn.disabled = true;
 
     try {
         if (isOfflineMode) {
@@ -240,9 +237,12 @@ window.handleAuth = async function () {
         msg.innerText = "Network Error";
         msg.style.color = '#ff3333';
         console.error(e);
-        if (spinner) spinner.classList.add('hidden');
     } finally {
-        if (authBtn) authBtn.disabled = false;
+        if (spinner) spinner.classList.add('hidden');
+        if (authBtn) {
+            authBtn.disabled = false;
+            authBtn.textContent = authMode === 'login' ? 'LOGIN TO PLAY' : 'REGISTER & PLAY';
+        }
         if (guestBtn) guestBtn.disabled = false;
     }
 };
@@ -257,9 +257,7 @@ window.handleGuestAuth = async function () {
     msg.style.color = '#00c6ff';
     if (spinner) spinner.classList.remove('hidden');
     const authBtn = document.getElementById('auth-btn');
-    const guestBtn = document.querySelector('.guest-btn');
     if (authBtn) authBtn.disabled = true;
-    if (guestBtn) guestBtn.disabled = true;
 
     if (guestBtn) {
         guestBtn.disabled = true;
@@ -297,7 +295,10 @@ window.handleGuestAuth = async function () {
     } finally {
         if (spinner) spinner.classList.add('hidden');
         if (authBtn) authBtn.disabled = false;
-        if (guestBtn) guestBtn.disabled = false;
+        if (guestBtn) {
+            guestBtn.disabled = false;
+            guestBtn.textContent = 'PLAY AS GUEST';
+        }
     }
 }
 
