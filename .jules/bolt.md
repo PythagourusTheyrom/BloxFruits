@@ -8,3 +8,7 @@
 ## YYYY-MM-DD - Inventory Array Traversal Optimization
 **Optimization:** Replaced the O(N) `hasItem` array traversal with an O(1) map-based `Inventory` type.
 **Learning:** For game items and large scale item usage, linear traversals like `for i, item := range inventory { if item == query { return true } }` scale poorly as inventory size increases. Converting simple slices into structs that encapsulate both a slice (for insertion-ordered serialization) and a map (for O(1) query lookups via read/write mutexes) yields massive lookup performance consistency under heavy load without breaking frontend assumptions of JSON.
+
+## 2026-03-30 - Map/Slice reallocation overhead in high-frequency game loops
+**Learning:** Re-allocating maps and slices on every tick (e.g. `grid := make(map[cellKey][]*Player)`) in high-frequency game loops (like `MobManager.Update` running at 20 TPS) generates massive garbage collection overhead and accounts for a significant portion of CPU time (over 10% in tests).
+**Action:** Always maintain persistent data structures (like maps or slices) on the struct and clear/reuse them across ticks rather than re-allocating them in hot paths. For slices inside maps, clearing them via `s = s[:0]` allows reusing the backing array without generating garbage.
