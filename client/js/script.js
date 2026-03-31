@@ -167,15 +167,12 @@ window.handleAuth = async function () {
 
     msg.innerText = "";
     if (spinner) spinner.classList.remove('hidden');
-    const authBtn = document.getElementById('auth-btn');
     const guestBtn = document.querySelector('.guest-btn');
-    if (authBtn) authBtn.disabled = true;
-    if (guestBtn) guestBtn.disabled = true;
-
     if (authBtn) {
         authBtn.disabled = true;
         authBtn.textContent = authMode === 'login' ? 'LOGGING IN...' : 'REGISTERING...';
     }
+    if (guestBtn) guestBtn.disabled = true;
 
     try {
         if (isOfflineMode) {
@@ -257,10 +254,8 @@ window.handleGuestAuth = async function () {
     msg.style.color = '#00c6ff';
     if (spinner) spinner.classList.remove('hidden');
     const authBtn = document.getElementById('auth-btn');
-    const guestBtn = document.querySelector('.guest-btn');
-    if (authBtn) authBtn.disabled = true;
-    if (guestBtn) guestBtn.disabled = true;
 
+    if (authBtn) authBtn.disabled = true;
     if (guestBtn) {
         guestBtn.disabled = true;
         guestBtn.textContent = 'CONNECTING...';
@@ -830,6 +825,33 @@ function updateWorldState(serverPlayers) {
         }
     }
 
+    function createNameTag(text) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = '24px Arial';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+        const tex = { image: canvas, isTexture: true, version: 1 };
+        const spriteMaterial = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+
+        // Use a simple plane instead of sprite if SpriteMaterial is not supported
+        const geometry = new THREE.PlaneGeometry(4, 1);
+        const sprite = new THREE.Mesh(geometry, spriteMaterial);
+
+        // Make it face the camera manually if needed,
+        // or just let it be a floating name tag
+        sprite.rotation.y = Math.PI; // Face the right way depending on camera setup
+
+        return sprite;
+    }
+
     // Update/Create players
     for (const id in serverPlayers) {
         if (id === gameState.myID) {
@@ -1028,6 +1050,26 @@ function setupScene() {
 
         // Name Tag
         if (gameState.myID) {
+            function createNameTag(text) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 256;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '24px Arial';
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+                const tex = { image: canvas, isTexture: true, version: 1 };
+                const spriteMaterial = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+                const geometry = new THREE.PlaneGeometry(4, 1);
+                const sprite = new THREE.Mesh(geometry, spriteMaterial);
+                sprite.rotation.y = Math.PI;
+                return sprite;
+            }
             const nt = createNameTag(gameState.myID);
             nt.position.y = 2.5;
             myPlayerMesh.add(nt);
