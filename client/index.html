@@ -89,11 +89,11 @@
                 <h2>Welcome, <span id="dash-username">Player</span></h2>
 
                 <div class="dashboard-actions">
-                    <div class="action-card" onclick="createLobby()">
+                    <div class="action-card" role="button" tabindex="0" onclick="createLobby()" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">
                         <h3>Create Lobby</h3>
                         <p>Host a private game</p>
                     </div>
-                    <div class="action-card" onclick="showJoinLobby()">
+                    <div class="action-card" role="button" tabindex="0" onclick="showJoinLobby()" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">
                         <h3>Join Lobby</h3>
                         <p>Enter a Lobby ID</p>
                     </div>
@@ -101,9 +101,9 @@
 
                 <h3>Public Servers</h3>
                 <div class="server-list">
-                    <div class="server-item" onclick="joinLobby('public_1')">Public Server 1</div>
-                    <div class="server-item" onclick="joinLobby('public_2')">Public Server 2</div>
-                    <div class="server-item" onclick="joinLobby('public_3')">Public Server 3</div>
+                    <div class="server-item" role="button" tabindex="0" onclick="joinLobby('public_1')" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">Public Server 1</div>
+                    <div class="server-item" role="button" tabindex="0" onclick="joinLobby('public_2')" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">Public Server 2</div>
+                    <div class="server-item" role="button" tabindex="0" onclick="joinLobby('public_3')" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">Public Server 3</div>
                 </div>
             </div>
         </div>
@@ -128,11 +128,11 @@
             </div>
 
             <div class="teams">
-                <div class="team-card marine" onclick="selectTeam('marine')">
+                <div class="team-card marine" role="button" tabindex="0" onclick="selectTeam('marine')" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">
                     <h2>MARINES</h2>
                     <p>Order & Justice</p>
                 </div>
-                <div class="team-card pirate" onclick="selectTeam('pirate')">
+                <div class="team-card pirate" role="button" tabindex="0" onclick="selectTeam('pirate')" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">
                     <h2>PIRATES</h2>
                     <p>Freedom & Adventure</p>
                 </div>
@@ -207,23 +207,23 @@
                 <button class="close-btn" aria-label="Close Shop" onclick="closeShop()">X</button>
 
                 <div class="shop-grid">
-                    <div class="shop-item" onclick="buyItem('katana')">
+                    <div class="shop-item" role="button" tabindex="0" onclick="buyItem('katana')" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">
                         <h3>Katana</h3>
                         <p>$1000</p>
                     </div>
-                    <div class="shop-item" onclick="buyItem('cutlass')">
+                    <div class="shop-item" role="button" tabindex="0" onclick="buyItem('cutlass')" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">
                         <h3>Cutlass</h3>
                         <p>$2500</p>
                     </div>
-                    <div class="shop-item" onclick="buyItem('pipe')">
+                    <div class="shop-item" role="button" tabindex="0" onclick="buyItem('pipe')" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">
                         <h3>Pipe</h3>
                         <p>$5000</p>
                     </div>
-                    <div class="shop-item" onclick="buyItem('bazooka')">
+                    <div class="shop-item" role="button" tabindex="0" onclick="buyItem('bazooka')" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">
                         <h3>Bazooka</h3>
                         <p>$10000</p>
                     </div>
-                    <div class="shop-item" onclick="buyFruit()">
+                    <div class="shop-item" role="button" tabindex="0" onclick="buyFruit()" onkeydown="if(event.key==='Enter'||event.key===' ')this.click();">
                         <h3>Random Fruit</h3>
                         <p>$1000</p>
                     </div>
