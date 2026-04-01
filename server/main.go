@@ -14,9 +14,12 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/websocket/v2"
 )
+
+const MaxChatLength = 200
 
 // Game State Types
 type Player struct {
@@ -416,6 +419,9 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:3000",
 	})) // Enable restricted CORS
+
+	// Add security headers
+	app.Use(helmet.New())
 
 	// Rate limiter for authentication endpoints (5 requests per minute)
 	authLimiter := limiter.New(limiter.Config{
@@ -817,6 +823,10 @@ func main() {
 
 					case "chat":
 						msgContent := input.Item
+						runes := []rune(msgContent)
+						if len(runes) > MaxChatLength {
+							msgContent = string(runes[:MaxChatLength])
+						}
 						chatMsg := map[string]interface{}{
 							"type": "chat",
 							"id":   player.ID,
@@ -862,12 +872,6 @@ func main() {
 			hub.mutex.Unlock()
 		}
 	}))
-
-	// Rate Limiter for Auth Endpoints
-	authLimiter = limiter.New(limiter.Config{
-		Max:        5,
-		Expiration: 1 * time.Minute,
-	})
 
 	// Auth Endpoints
 	app.Post("/api/register", authLimiter, func(c *fiber.Ctx) error {
