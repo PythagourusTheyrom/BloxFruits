@@ -413,8 +413,14 @@ func main() {
 	}
 
 	app := fiber.New()
+
+	allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
+	if allowedOrigin == "" {
+		allowedOrigin = "http://localhost:3000"
+	}
+
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000",
+		AllowOrigins: allowedOrigin,
 	})) // Enable restricted CORS
 
 	// Rate limiter for authentication endpoints (5 requests per minute)
