@@ -166,7 +166,8 @@ func (mm *MobManager) Update(deltaTime float64) {
 					// Let's rely on randomness to throttle or add a BurnTimer.
 					// Random 5% chance per tick (20 ticks/sec -> 1 hit/sec avg)
 					if p.Weapon == "Magma Fruit" && distSq < 64.0 { // 8.0 squared
-						if math.Sin(float64(now)) > 0.95 { // Simple random throttle
+						// ⚡ Bolt Optimization: Using math/rand instead of math.Sin(time) to reduce CPU overhead
+						if rand.Float64() < 0.05 { // Simple random throttle
 							mob.Health -= 5
 							// Don't kill implicitly here without rewards?
 							// Let's just reduce health. If it dies, the next handleMobDamage check will fail?
