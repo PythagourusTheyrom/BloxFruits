@@ -10,3 +10,7 @@
 **Vulnerability:** Sensitive authentication endpoints (`/api/register`, `/api/login`, `/api/guest`) lacked rate limiting.
 **Learning:** This missing protection could allow brute-force attacks or Denial of Service (DoS) by spamming these endpoints, bypassing authentication mechanisms. Rate limits for sensitive endpoints should be implemented by default to protect user security and application stability.
 **Prevention:** Always implement a rate limiter on endpoints that involve user authentication, token generation, or sensitive actions. Use standard middleware, such as `github.com/gofiber/fiber/v2/middleware/limiter`, to easily achieve this.
+## 2025-02-18 - String truncation using rune slice
+**Vulnerability:** DoS using long messages
+**Learning:** Corrupting multi-byte UTF-8 characters
+**Prevention:** Using []rune for truncation
