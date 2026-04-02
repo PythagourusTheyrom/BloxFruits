@@ -10,3 +10,8 @@
 **Vulnerability:** Sensitive authentication endpoints (`/api/register`, `/api/login`, `/api/guest`) lacked rate limiting.
 **Learning:** This missing protection could allow brute-force attacks or Denial of Service (DoS) by spamming these endpoints, bypassing authentication mechanisms. Rate limits for sensitive endpoints should be implemented by default to protect user security and application stability.
 **Prevention:** Always implement a rate limiter on endpoints that involve user authentication, token generation, or sensitive actions. Use standard middleware, such as `github.com/gofiber/fiber/v2/middleware/limiter`, to easily achieve this.
+
+## 2026-04-02 - [MEDIUM] Add input length limits to chat messages
+**Vulnerability:** Chat messages in `server/main.go` lacked a maximum length limit, allowing malicious clients to send excessively large payloads.
+**Learning:** Unrestricted message sizes in WebSocket handlers can be exploited to cause a Denial of Service (DoS) by consuming excessive memory and bandwidth. Additionally, string truncation in Go must use rune slices instead of byte slices to prevent corrupting multi-byte UTF-8 characters (like emojis), which could otherwise cause rendering issues or crashes.
+**Prevention:** Always enforce a hard limit on user input lengths, particularly for data broadcasted to many clients. When truncating text that may contain Unicode, explicitly cast the string to `[]rune` before slicing.
