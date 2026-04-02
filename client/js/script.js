@@ -1211,10 +1211,20 @@ function updateSecondaryUI() {
     if (hotbar) {
         hotbar.replaceChildren();
         (gameState.player.inventory || []).forEach(item => {
-            const slot = document.createElement('div');
+            const slot = document.createElement('button');
             slot.className = 'hotbar-slot';
             slot.innerText = item.charAt(0).toUpperCase();
-            slot.title = item;
+
+            let keyHint = '';
+            const lowerItem = item.toLowerCase();
+            if (lowerItem === 'melee' || lowerItem === 'combat') keyHint = ' [1]';
+            else if (lowerItem === 'katana') keyHint = ' [2]';
+            else if (lowerItem === 'cutlass') keyHint = ' [3]';
+            else if (lowerItem === 'pipe') keyHint = ' [4]';
+            else if (lowerItem === 'bazooka') keyHint = ' [5]';
+
+            slot.title = `Equip ${item}${keyHint}`;
+            slot.setAttribute('aria-label', `Equip ${item}`);
             slot.onclick = () => {
                 if (socket && socket.readyState === WebSocket.OPEN) {
                     socket.send(JSON.stringify({ type: 'set_weapon', weapon: item }));
