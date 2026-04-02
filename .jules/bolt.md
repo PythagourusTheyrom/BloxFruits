@@ -8,3 +8,6 @@
 ## YYYY-MM-DD - Inventory Array Traversal Optimization
 **Optimization:** Replaced the O(N) `hasItem` array traversal with an O(1) map-based `Inventory` type.
 **Learning:** For game items and large scale item usage, linear traversals like `for i, item := range inventory { if item == query { return true } }` scale poorly as inventory size increases. Converting simple slices into structs that encapsulate both a slice (for insertion-ordered serialization) and a map (for O(1) query lookups via read/write mutexes) yields massive lookup performance consistency under heavy load without breaking frontend assumptions of JSON.
+## 2026-04-02 - [Go Map Reuse via clear()]
+**Learning:** Instead of allocating a new map on every frame in high-frequency game tick loops, using the Go 1.21+ built-in `clear(map)` reuses the map's hash buckets while dropping all entries and underlying slice allocations. This prevents unbounded growth from accumulating historical keys (avoiding O(N) iteration scaling bottlenecks) and significantly reduces garbage collection pressure compared to `make(map)`.
+**Action:** Always use `clear()` to recycle maps with unbounded, dynamic keys in hot paths where a new map was previously being allocated.
