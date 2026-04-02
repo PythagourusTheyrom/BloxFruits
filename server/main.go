@@ -18,6 +18,8 @@ import (
 	"github.com/gofiber/websocket/v2"
 )
 
+const MaxChatLength = 200 // Prevent excessively long chat messages
+
 // Game State Types
 type Player struct {
 	ID        string  `json:"id"`
@@ -817,6 +819,12 @@ func main() {
 
 					case "chat":
 						msgContent := input.Item
+						// Truncate to MaxChatLength using runes to avoid splitting multi-byte UTF-8 characters (like emojis)
+						runes := []rune(msgContent)
+						if len(runes) > MaxChatLength {
+							msgContent = string(runes[:MaxChatLength])
+						}
+
 						chatMsg := map[string]interface{}{
 							"type": "chat",
 							"id":   player.ID,
