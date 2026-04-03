@@ -1,0 +1,13 @@
+2026/04/03 19:25:58 Database initialized.
+
+ ┌───────────────────────────────────────────────────┐
+ │                  Fiber v2.52.11                   │
+ │               http://127.0.0.1:3000               │
+ │       (bound on host 0.0.0.0 and port 3000)       │
+ │                                                   │
+ │ Handlers ............ 11  Processes ........... 1 │
+ │ Prefork ....... Disabled  PID ............ 210640 │
+ └───────────────────────────────────────────────────┘
+
+2026/04/03 19:26:41 Player connected: Guest_38d60e76c3a678bf
+2026/04/03 19:26:46 Player disconnected: Guest_38d60e76c3a678bf
