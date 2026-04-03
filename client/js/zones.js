@@ -78,8 +78,10 @@ update(position) {
     let zoneData = null;
 
     for (const zone of this.zones) {
-        const dist = Math.sqrt(Math.pow(position.x - zone.x, 2) + Math.pow(position.z - zone.z, 2));
-        if (dist <= zone.radius) {
+        const dx = position.x - zone.x;
+        const dz = position.z - zone.z;
+        const distSq = dx * dx + dz * dz;
+        if (distSq <= zone.radius * zone.radius) {
             newZone = zone.name;
             zoneData = zone;
             break; // Assume non-overlapping for now

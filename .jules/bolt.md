@@ -8,3 +8,7 @@
 ## YYYY-MM-DD - Inventory Array Traversal Optimization
 **Optimization:** Replaced the O(N) `hasItem` array traversal with an O(1) map-based `Inventory` type.
 **Learning:** For game items and large scale item usage, linear traversals like `for i, item := range inventory { if item == query { return true } }` scale poorly as inventory size increases. Converting simple slices into structs that encapsulate both a slice (for insertion-ordered serialization) and a map (for O(1) query lookups via read/write mutexes) yields massive lookup performance consistency under heavy load without breaking frontend assumptions of JSON.
+
+## 2024-04-03 - [JS Spatial Math Optimization]
+**Learning:** Just like in Go, `Math.pow(x, 2)` and `Math.sqrt` incur unnecessary overhead in JavaScript's high-frequency tick calculations (e.g., render loop `update` functions). Profiling spatial calculations, such as checking distances against thresholds in `client/js/zones.js`, reveals that using squared distance comparisons (`dx*dx + dz*dz <= radius*radius`) is significantly faster and avoids function call overhead.
+**Action:** Always replace `Math.sqrt(Math.pow(dx, 2) + Math.pow(dz, 2)) <= radius` with `dx*dx + dz*dz <= radius*radius` when performing spatial threshold checks in high-performance hot paths within the JavaScript client.
