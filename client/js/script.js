@@ -167,7 +167,6 @@ window.handleAuth = async function () {
 
     msg.innerText = "";
     if (spinner) spinner.classList.remove('hidden');
-    const authBtn = document.getElementById('auth-btn');
     const guestBtn = document.querySelector('.guest-btn');
     if (authBtn) authBtn.disabled = true;
     if (guestBtn) guestBtn.disabled = true;
@@ -257,7 +256,6 @@ window.handleGuestAuth = async function () {
     msg.style.color = '#00c6ff';
     if (spinner) spinner.classList.remove('hidden');
     const authBtn = document.getElementById('auth-btn');
-    const guestBtn = document.querySelector('.guest-btn');
     if (authBtn) authBtn.disabled = true;
     if (guestBtn) guestBtn.disabled = true;
 
@@ -1210,11 +1208,13 @@ function updateSecondaryUI() {
     const hotbar = document.getElementById('hotbar-container');
     if (hotbar) {
         hotbar.replaceChildren();
-        (gameState.player.inventory || []).forEach(item => {
-            const slot = document.createElement('div');
+        (gameState.player.inventory || []).forEach((item, index) => {
+            const slot = document.createElement('button');
             slot.className = 'hotbar-slot';
             slot.innerText = item.charAt(0).toUpperCase();
-            slot.title = item;
+            const shortcutKey = index < 5 ? (index + 1).toString() : '';
+            slot.title = shortcutKey ? `${item} (Shortcut: ${shortcutKey})` : item;
+            slot.setAttribute('aria-label', `Equip ${item}`);
             slot.onclick = () => {
                 if (socket && socket.readyState === WebSocket.OPEN) {
                     socket.send(JSON.stringify({ type: 'set_weapon', weapon: item }));
