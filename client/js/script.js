@@ -167,7 +167,7 @@ window.handleAuth = async function () {
 
     msg.innerText = "";
     if (spinner) spinner.classList.remove('hidden');
-    const authBtn = document.getElementById('auth-btn');
+    // authBtn already declared above
     const guestBtn = document.querySelector('.guest-btn');
     if (authBtn) authBtn.disabled = true;
     if (guestBtn) guestBtn.disabled = true;
@@ -257,7 +257,7 @@ window.handleGuestAuth = async function () {
     msg.style.color = '#00c6ff';
     if (spinner) spinner.classList.remove('hidden');
     const authBtn = document.getElementById('auth-btn');
-    const guestBtn = document.querySelector('.guest-btn');
+    // guestBtn already declared above
     if (authBtn) authBtn.disabled = true;
     if (guestBtn) guestBtn.disabled = true;
 
