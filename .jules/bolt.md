@@ -8,3 +8,7 @@
 ## YYYY-MM-DD - Inventory Array Traversal Optimization
 **Optimization:** Replaced the O(N) `hasItem` array traversal with an O(1) map-based `Inventory` type.
 **Learning:** For game items and large scale item usage, linear traversals like `for i, item := range inventory { if item == query { return true } }` scale poorly as inventory size increases. Converting simple slices into structs that encapsulate both a slice (for insertion-ordered serialization) and a map (for O(1) query lookups via read/write mutexes) yields massive lookup performance consistency under heavy load without breaking frontend assumptions of JSON.
+
+## 2024-04-04 - [Go Spatial Grid Allocation Optimization]
+**Learning:** Re-allocating map instances every tick in game update loops causes massive garbage collection overhead. However, retaining map references and zeroing slice elements via iteration (`mm.grid[k] = mm.grid[k][:0]`) can lead to memory leaks when the spatial grid scales because historical map keys are never cleared.
+**Action:** Use Go 1.21's `clear(map)` built-in to clear spatial grid maps on every tick instead of re-allocating them. `clear` retains the map and slice capacities and successfully drops dropped allocations entirely for spatial checks, while guaranteeing O(N) map traversal overhead does not accumulate with unbounded historic player keys.
