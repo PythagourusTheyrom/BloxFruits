@@ -42,16 +42,24 @@ type Mob struct {
 	spawnZ float64
 }
 
+// Spatial partitioning grid to optimize player distance checks
+type cellKey struct {
+	x int
+	z int
+}
+
 type MobManager struct {
 	Mobs  map[string]*Mob
 	mutex sync.Mutex
 	hub   *Hub
+	grid  map[cellKey][]*Player
 }
 
 func NewMobManager(hub *Hub) *MobManager {
 	return &MobManager{
 		Mobs: make(map[string]*Mob),
 		hub:  hub,
+		grid: make(map[cellKey][]*Player),
 	}
 }
 
@@ -102,13 +110,14 @@ func (mm *MobManager) Update(deltaTime float64) {
 
 	now := time.Now().UnixMilli()
 
-	// Spatial partitioning grid to optimize player distance checks
-	type cellKey struct {
-		x int
-		z int
-	}
 	cellSize := 20.0
-	grid := make(map[cellKey][]*Player)
+
+	// ⚡ Bolt Optimization: Retain the map and its bucket capacities.
+	// For unbounded map keys (e.g. spatial keys where players move everywhere),
+	// `clear(mm.grid)` is necessary so that memory doesn't leak for historical map keys.
+	// We use `clear()` because iterating over ever-growing map keys causes an O(N)
+	// iteration overhead that outweighs potential slice capacity savings.
+	clear(mm.grid)
 
 	mm.hub.mutex.Lock()
 	for _, p := range mm.hub.players {
@@ -117,7 +126,7 @@ func (mm *MobManager) Update(deltaTime float64) {
 		}
 		cx := int(math.Floor(p.X / cellSize))
 		cz := int(math.Floor(p.Z / cellSize))
-		grid[cellKey{cx, cz}] = append(grid[cellKey{cx, cz}], p)
+		mm.grid[cellKey{cx, cz}] = append(mm.grid[cellKey{cx, cz}], p)
 	}
 	mm.hub.mutex.Unlock()
 
@@ -157,7 +166,7 @@ func (mm *MobManager) Update(deltaTime float64) {
 		for dx := -1; dx <= 1; dx++ {
 			for dz := -1; dz <= 1; dz++ {
 				key := cellKey{mobCx + dx, mobCz + dz}
-				for _, p := range grid[key] {
+				for _, p := range mm.grid[key] {
 					// ⚡ Bolt Optimization: Calculate squared distance
 					distSq := distanceSq(mob.X, mob.Z, p.X, p.Z)
 
