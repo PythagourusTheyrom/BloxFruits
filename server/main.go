@@ -817,6 +817,10 @@ func main() {
 
 					case "chat":
 						msgContent := input.Item
+						const MaxChatLength = 200
+						if len([]rune(msgContent)) > MaxChatLength {
+							msgContent = string([]rune(msgContent)[:MaxChatLength])
+						}
 						chatMsg := map[string]interface{}{
 							"type": "chat",
 							"id":   player.ID,
