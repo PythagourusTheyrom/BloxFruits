@@ -1210,11 +1210,13 @@ function updateSecondaryUI() {
     const hotbar = document.getElementById('hotbar-container');
     if (hotbar) {
         hotbar.replaceChildren();
-        (gameState.player.inventory || []).forEach(item => {
-            const slot = document.createElement('div');
+        (gameState.player.inventory || []).forEach((item, index) => {
+            const slot = document.createElement('button');
+            slot.type = 'button';
             slot.className = 'hotbar-slot';
             slot.innerText = item.charAt(0).toUpperCase();
-            slot.title = item;
+            slot.setAttribute('aria-label', 'Equip ' + item);
+            slot.title = item + ' (Shortcut: ' + (index + 1) + ')';
             slot.onclick = () => {
                 if (socket && socket.readyState === WebSocket.OPEN) {
                     socket.send(JSON.stringify({ type: 'set_weapon', weapon: item }));
